@@ -1,0 +1,20 @@
+let io = require('atma-io');
+var Base = require('../lib/');
+
+UTest({
+	'basic' () {
+		Base.create({
+			name: 'txt_make_upper',
+			extensions: {
+				lowered_txt: 'read'
+			},
+			defaultOptions: {},
+			process: assert.await(function(content){
+				return { content: content.toUpperCase() }
+			})
+		}, io);
+		
+		var content = io.File.read('/test/fixtures/foo.lowered_txt');
+		eq_(content, 'FOO');
+	}
+})
