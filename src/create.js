@@ -3,6 +3,15 @@ let Compiler = require('./Compiler');
 let Middleware = require('./class/Middleware');
 let { io, utils: { is_String, is_Function } } = require('./package-private');
 
+/**
+ * @middlewareDefintion {
+ * 	name: string
+ *  process (content, path, options, ctx: { file, method })
+ *  processAsync (content, path, options, ctx: { file, method }, done)
+ * 	defaultOptions: {}
+ *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
+ * }
+ */
 module.exports = function(middlewareDefintion, io_) {
 	let { name, process, processAsync } = middlewareDefintion;
 	if (is_String(name) === false) {

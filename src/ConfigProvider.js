@@ -1,10 +1,8 @@
 const appcfg = require('appcfg');
-const EventEmitter = require('events');
-const States = { LOADING: 1, LOADED: 2, CUSTOM: 3 };
 
-class ConfigProvider extends EventEmitter {
+
+class ConfigProvider {
 	constructor (name, defaultOptions) {
-		super();
 		this.name = name;
 		this.options = defaultOptions;
 		this.state = States.LOADING;		

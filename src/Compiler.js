@@ -7,7 +7,9 @@ module.exports = class Compiler {
 		this.middlewareAsync_ = processAsync;
 		this.textOnly = textOnly;
 	}
-
+	setOptions (opts) {
+		this.options = opts;
+	}
 	middleware_ (content, path, options, ctx) {
 		throw Error('Not implemented');
 		return { content: null, sourceMap: null };
@@ -21,12 +23,12 @@ module.exports = class Compiler {
 		}
 		done(null, file);
 	}
-	compile (file, options) {
-		let result = this.process_('middleware_', file, options);
+	compile (file, config) {
+		let result = this.process_('middleware_', file, config);
 		this.applyResult_(file, result);
 	}
-	compileAsync (file, options, done) {
-		this.process_('middlewareAsync_', file, options, (error, result) => {
+	compileAsync (file, config, done) {
+		this.process_('middlewareAsync_', file, config, (error, result) => {
 			if (error) {
 				done(error);
 				return;
@@ -36,15 +38,14 @@ module.exports = class Compiler {
 		});
 	}
 
-	process_ (method, file, options, done) {
-		let content = this.getContent_(file);
-		let opts = this.options;
-		if (options) {
-			opts = Object.assign(opts, options);
-		}
-		let path = file.uri.toLocalFile();
-		let ctx = { file, method };		
-		return this[method](content, path, opts, ctx, done);
+	process_ (method, file, config, done) {
+		return this[method](
+			this.getContent_(file), 
+			file.uri.toLocalFile(), 
+			this.options, 
+			{ file, method, config }, 
+			done
+		);
 	}
 	applyResult_ (file, result) {
 		file.sourceMap = result.sourceMap;
