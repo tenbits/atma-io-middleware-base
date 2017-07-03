@@ -1,14 +1,17 @@
+const { create: createLogger } = require('class/Logger.js');
 module.exports = class Compiler {
 	constructor (middlewareDefinition, options) {
-		this.options = options;
-
 		const { process, processAsync, textOnly = true } = middlewareDefinition;
+		this.middlewareDefinition = middlewareDefinition;
 		this.middleware_ = process;
 		this.middlewareAsync_ = processAsync;
+		
 		this.textOnly = textOnly;
+		this.setOptions(options);
 	}
 	setOptions (opts) {
 		this.options = opts;
+		this.logger = createLogger(this.options.logger || this.middlewareDefinition.logger);
 	}
 	middleware_ (content, path, options, ctx) {
 		throw Error('Not implemented');
@@ -39,13 +42,22 @@ module.exports = class Compiler {
 	}
 
 	process_ (method, file, config, done) {
-		return this[method](
+		this.logger.lock();
+		let isAsync = done != null;
+		if (isAsync) {
+			done = this.logger.wrap(done);
+		}
+		let result = this[method](
 			this.getContent_(file), 
 			file.uri.toLocalFile(), 
 			this.options, 
 			{ file, method, config }, 
 			done
 		);
+		if (isAsync === false) {
+			this.logger.release();
+		}
+		return result;
 	}
 	applyResult_ (file, result) {
 		file.sourceMap = result.sourceMap;

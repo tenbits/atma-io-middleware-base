@@ -1,7 +1,13 @@
 let io = require('atma-io');
-var Base = require('../lib/');
 
 UTest({
+	$teardown () {
+		io.File.setMiddlewares({
+			js: [],
+			lowered_txt: [],
+			txt: []
+		})
+	},
 	'simple middleware for an extension' () {
 		Base.create({
 			name: 'txt_make_upper',
@@ -32,7 +38,7 @@ UTest({
 		var content = io.File.read('/test/fixtures/book.txt');
 		eq_(content, 'DORIAN');
 	},
-	'virtual file' () {
+	'middlewares for a virtual file' () {
 		Base.create({
 			name: 'my_virtual_file',
 			isVirtualHandler: true,
@@ -58,5 +64,25 @@ UTest({
 		
 		var content = io.File.read('/test/fixtures/main_memory.txt');
 		eq_(content, 'HELLO');
+	},
+	'should intercept the output' () {
+		Base.create({
+			name: 'txt_make_upper',
+			extensions: {
+				lowered_txt: 'read'
+			},
+			defaultOptions: {},
+			process: assert.await(function(content){
+				console.log(content);
+				return { content: content.toUpperCase() }
+			}),
+			logger: {
+				type: 'custom',
+				write: sinon.spy()
+			}
+		}, io);
+		
+		var content = io.File.read('/test/fixtures/foo.lowered_txt');
+		eq_(content, 'FOO');
 	}
 })
