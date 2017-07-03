@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "appcfg": "^0.2.44",
+    "atma-io": "^0.2.22",
     "atma-utils": "^0.1.8"
   }
 }

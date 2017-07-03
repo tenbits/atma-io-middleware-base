@@ -2,7 +2,7 @@ let io = require('atma-io');
 var Base = require('../lib/');
 
 UTest({
-	'basic' () {
+	'simple middleware for an extension' () {
 		Base.create({
 			name: 'txt_make_upper',
 			extensions: {
@@ -16,5 +16,47 @@ UTest({
 		
 		var content = io.File.read('/test/fixtures/foo.lowered_txt');
 		eq_(content, 'FOO');
+	},
+	'simple middleware for regexp' () {
+		Base.create({
+			name: 'txt_boo_upper',
+			extensions: {
+				'/boo/': 'read'
+			},
+			defaultOptions: {},
+			process: assert.await(function(content){
+				return { content: content.toUpperCase() }
+			})
+		}, io);
+		
+		var content = io.File.read('/test/fixtures/book.txt');
+		eq_(content, 'DORIAN');
+	},
+	'virtual file' () {
+		Base.create({
+			name: 'my_virtual_file',
+			isVirtualHandler: true,
+			extensions: {
+				'/main_mem/': 'read'
+			},
+			defaultOptions: {},
+			process: assert.await(function(content){
+				return { content: 'hello' };
+			})
+		}, io);
+
+		Base.create({
+			name: 'my_virtual_file_toUpper',
+			extensions: {
+				'/main_mem/': 'read'
+			},
+			defaultOptions: {},
+			process: assert.await(function(content){
+				return { content: content.toUpperCase() };
+			})
+		}, io);
+		
+		var content = io.File.read('/test/fixtures/main_memory.txt');
+		eq_(content, 'HELLO');
 	}
 })

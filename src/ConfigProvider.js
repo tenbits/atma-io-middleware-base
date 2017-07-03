@@ -4,8 +4,7 @@ const appcfg = require('appcfg');
 class ConfigProvider {
 	constructor (name, defaultOptions) {
 		this.name = name;
-		this.options = defaultOptions;
-		this.state = States.LOADING;		
+		this.options = defaultOptions;		
 	}
 	load () {
 		let defaultOptions = this.options;

@@ -1,11 +1,23 @@
-import { utils } from './package-private.js';
+import { utils, io } from './package-private.js';
 
 export default class AtmaServer {
-    static attach (app, extensions, middleware, options) {
-        
+    static attach (app, extMap, middleware, opts) {
+        options = opts;
+        Object.keys(extMap).forEach(ext => {
+            if (ext[0] !== '/') {
+                var rgx = `\\.${ext}($|\\?)`;
+                var rgx_map = `\\.${ext}\\.map($|\\?)`;
+                app.handlers.registerHandler(rgx, HttpHandler);
+                app.handlers.registerHandler(rgx_map, HttpHandler);
+                return;
+            }
+            app.handlers.registerHandler(ext, HttpHandler);
+        })
     }
 }
 
+let options = null;
+let File = io.File;
 
 class HttpHandler extends utils.class_Dfr {
 
@@ -23,19 +35,20 @@ class HttpHandler extends utils.class_Dfr {
         if (url[0] === '/') {
             url = url.substring(1);
         }
+        if (config.base) {
+            options.base = config.base;
+        }
         
-        options.base = config.base;
-        
-        try_createFile_viaStatic(config, url, onSuccess, try_Static);
+        try_createFileInstance_viaStatic(config, url, onSuccess, try_Static);
         
         function try_Static(){
-            try_createFile_byConfig(config, 'static', url, onSuccess, try_Base);
+            try_createFileInstance_byConfig(config, 'static', url, onSuccess, try_Base);
         }
         function try_Base() {
-            try_createFile_byConfig(config, 'base', url, onSuccess, try_Cwd);
+            try_createFileInstance_byConfig(config, 'base', url, onSuccess, try_Cwd);
         }
         function try_Cwd() {
-            try_createFile(process.cwd(), url, onSuccess, onFailure);
+            try_createFileInstance(process.cwd(), url, onSuccess, onFailure);
         }
         function onFailure(){
             handler.reject('Not Found - ' + url, 404, 'text/plain');
@@ -63,3 +76,45 @@ class HttpHandler extends utils.class_Dfr {
         }
     }
 }
+
+function try_createFileInstance(base, url, onSuccess, onFailure) {
+    var path = net.Uri.combine(base, url);
+    File
+        .existsAsync(path)
+        .fail(onFailure)
+        .done(function(exists){
+            if (exists) 
+                return onSuccess(new File(path));
+            onFailure();
+        });
+};
+function try_createFileInstance_byConfig(config, property, url, onSuccess, onFailure){
+    var base = config && config[property];
+    if (base == null) {
+        onFailure();
+        return;
+    }
+    try_createFileInstance(base, url, onSuccess, onFailure);
+}
+function try_createFileInstance_viaStatic(config, url, onSuccess, onFailure){
+    if (_resolveStaticPath === void 0) {
+        var x;
+        _resolveStaticPath = (x = global.atma)
+            && (x = x.server)
+            && (x = x.StaticContent)
+            && (x = x.utils)
+            && (x = x.resolvePath)
+            ;
+    }
+    if (_resolveStaticPath == null) {
+        onFailure();
+        return;
+    }
+    var file = new io.File(_resolveStaticPath(url, config));
+    if (file.exists() === false) {
+        onFailure();
+        return;
+    }
+    onSuccess(file);
+}
+var _resolveStaticPath;

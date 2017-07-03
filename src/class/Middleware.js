@@ -1,5 +1,6 @@
 const SourceMapFile = require('./SourceMapFile');
-const AtmaServer = require('./AtmaServer');
+const VirtualFile = require('./VirtualFile');
+const AtmaServer = require('../AtmaServer');
 
 module.exports = class Middleware {
 	constructor (middlewareDefintion, options, compiler) {
@@ -8,12 +9,14 @@ module.exports = class Middleware {
 		options.extensions = options.extensions || extensions;
 		options.mimeType = options.mimeType || mimeType;
 		
+		
 		let { name } = middlewareDefintion;
 		this.globalOptions = options;
 		
 		this.options = Object.assign({}, options);
 		this.compiler = compiler;
 		this.name = name;
+		this.middlewareDefintion = middlewareDefintion;
 	}
 	process (file, config) {
 		this.compiler.compile(file, config);
@@ -23,7 +26,6 @@ module.exports = class Middleware {
 	}
 
 	/** Atma-Server */
-
 	attach (app) {
 		let globalOpts = Object.assign({}, this.options);
 		let appOptions = app.config && (app.config.$get(`settings.${this.name}`) || app.config.$get(`${this.name}`));
@@ -32,7 +34,7 @@ module.exports = class Middleware {
 		}
 		let extensions = globalOpts.extensions;
 		if (extensions) {
-			extensions = normalizeExtensions(extensions);
+			extensions = normalizeExtensions(extensions, this.name);
 		}
 		AtmaServer.attach(app, extensions, this, globalOpts);
 	}
@@ -58,9 +60,13 @@ module.exports = class Middleware {
 			this.setOptions(extraOptions)
 		}
 		let {extensions, sourceMap} = opts;		
-		let extensionsMap = normalizeExtensions(extensions);
+		let extensionsMap = normalizeExtensions(extensions, this.name);
 
-		registerExtensions(io.File, extensionsMap, sourceMap);		
+		registerExtensions(io.File, extensionsMap, sourceMap);	
+
+		if (this.middlewareDefintion.isVirtualHandler) {
+			VirtualFile.register(io, extensionsMap, this.middlewareDefintion);
+		}	
 	}
 	setOptions (opts) {
 		this.options = Object.assign({}, this.globalOptions);
@@ -76,7 +82,7 @@ module.exports = class Middleware {
  * @param {Array|Object} mix
  * @return {Object} Example: { fooExt: ['current-midd-name:read'] } 
  */
-function normalizeExtensions (mix) {
+function normalizeExtensions (mix, name) {
 	let map = {};
 	if (mix == null) {
 		return map;
@@ -100,15 +106,11 @@ function normalizeExtensions (mix) {
 }
 
 function registerExtensions (File, extMap, withSourceMap = false) {
-	if (File.setMiddlewares) {
-		File.setMiddlewares(extMap);
-	} else {
-		// back compat
-		File.registerExtensions(extMap);
-	}
+	File.registerExtensions(extMap);
+	
 	if (withSourceMap) {
 		for (let ext in map) {
-			Factory.registerHandler(
+			File.getFactory().registerHandler(
 				new RegExp('\\.' + ext + '.map$', 'i')
 				, SourceMapFile
 			); 
