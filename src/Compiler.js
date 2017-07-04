@@ -3,21 +3,30 @@ module.exports = class Compiler {
 	constructor (middlewareDefinition, options) {
 		const { process, processAsync, textOnly = true } = middlewareDefinition;
 		this.middlewareDefinition = middlewareDefinition;
-		this.middleware_ = process;
-		this.middlewareAsync_ = processAsync;
+		this.process_ = process;
+		this.processAsync_ = processAsync;
 		
 		this.textOnly = textOnly;
+		this.curentConfig = null;		
 		this.setOptions(options);
 	}
 	setOptions (opts) {
-		this.options = opts;
 		this.logger = createLogger(this.options.logger || this.middlewareDefinition.logger);
+		this.options = opts;
+		this.currentConfig = null;		
 	}
-	middleware_ (content, path, options, ctx) {
+	getOption (name) {
+		let val = this.currentConfig && this.currentConfig[name];
+		if (val != null) {
+			return val;
+		}
+		return this.options[name];
+	}
+	process_ (content, file, compiler) {
 		throw Error('Not implemented');
 		return { content: null, sourceMap: null };
 	}
-	middlewareAsync_ (content, path, options, ctx, done) {
+	processAsync_ (content, file, compiler, done) {
 		try {
 			this.compile(file, options);
 		} catch (error) {
@@ -27,11 +36,11 @@ module.exports = class Compiler {
 		done(null, file);
 	}
 	compile (file, config) {
-		let result = this.process_('middleware_', file, config);
+		let result = this.run_('process_', file, config);
 		this.applyResult_(file, result);
 	}
 	compileAsync (file, config, done) {
-		this.process_('middlewareAsync_', file, config, (error, result) => {
+		this.run_('processAsync_', file, config, (error, result) => {
 			if (error) {
 				done(error);
 				return;
@@ -41,7 +50,8 @@ module.exports = class Compiler {
 		});
 	}
 
-	process_ (method, file, config, done) {
+	run_ (method, file, config, done) {
+		this.currentConfig = config;
 		this.logger.lock();
 		let isAsync = done != null;
 		if (isAsync) {
@@ -49,9 +59,8 @@ module.exports = class Compiler {
 		}
 		let result = this[method](
 			this.getContent_(file), 
-			file.uri.toLocalFile(), 
-			this.options, 
-			{ file, method, config }, 
+			file, 
+			this, 			 
 			done
 		);
 		if (isAsync === false) {
