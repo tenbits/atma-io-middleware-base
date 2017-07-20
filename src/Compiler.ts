@@ -1,19 +1,29 @@
-const { create: createLogger } = require('class/Logger.js');
-module.exports = class Compiler {
-	constructor (middlewareDefinition, options) {
+import { createLogger, ILogger } from './class/Logger';
+import { IMiddlewareDefinition, IOptions, IMiddResult } from './IConfig'
+import io from 'atma-io';
+
+export default class Compiler {
+	private logger: ILogger
+	private textOnly: boolean
+	/** Single temp Configuration: will be passt on each io File read/write calls */
+	private currentConfig: any = null
+
+	constructor (
+		public middlewareDefinition: IMiddlewareDefinition, 
+		public options: IOptions) 
+	{
 		const { process, processAsync, textOnly = true } = middlewareDefinition;
 		this.middlewareDefinition = middlewareDefinition;
 		this.process_ = process;
 		this.processAsync_ = processAsync;
 		
-		this.textOnly = textOnly;
-		this.curentConfig = null;		
+		this.textOnly = textOnly;		
 		this.setOptions(options);
 	}
-	setOptions (opts) {
-		this.logger = createLogger(this.options.logger || this.middlewareDefinition.logger);
+	setOptions (opts: IOptions) {
+		this.logger = createLogger(this.options.logger || this.middlewareDefinition.defaultOptions.logger);
 		this.options = opts;
-		this.currentConfig = null;		
+		this.currentConfig = null;
 	}
 	getOption (name) {
 		let val = this.currentConfig && this.currentConfig[name];
@@ -22,13 +32,12 @@ module.exports = class Compiler {
 		}
 		return this.options[name];
 	}
-	process_ (content, file, compiler) {
-		throw Error('Not implemented');
-		return { content: null, sourceMap: null };
+	process_ (content: string | any, file: io.File, compiler: Compiler, done?: Function): IMiddResult | void {
+		throw Error('Not implemented');		
 	}
-	processAsync_ (content, file, compiler, done) {
+	processAsync_ (content: string | any, file: io.File, compiler: Compiler, done: Function): any {
 		try {
-			this.compile(file, options);
+			this.compile(file, this.options);
 		} catch (error) {
 			done(error);
 			return;
@@ -50,12 +59,12 @@ module.exports = class Compiler {
 		});
 	}
 
-	run_ (method, file, config, done) {
+	run_ (method: 'process_' | 'processAsync_', file: io.File, config: any, done?: Function) {
 		this.currentConfig = config;
-		this.logger.lock();
+		this.logger.start();
 		let isAsync = done != null;
 		if (isAsync) {
-			done = this.logger.wrap(done);
+			done = this.logger.delegateEnd(done);
 		}
 		let result = this[method](
 			this.getContent_(file), 
@@ -64,16 +73,16 @@ module.exports = class Compiler {
 			done
 		);
 		if (isAsync === false) {
-			this.logger.release();
+			this.logger.end();
 		}
 		return result;
 	}
-	applyResult_ (file, result) {
+	applyResult_ (file: io.File, result) {
 		file.sourceMap = result.sourceMap;
 		file.content = result.content;
 	}
 
-	getContent_ (file) {
+	getContent_ (file: io.File) : string | any{
 		var content = file.content;
 		if (typeof content === 'string') {
 			return content;

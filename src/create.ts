@@ -1,8 +1,11 @@
-let ConfigProvider = require('./ConfigProvider');
-let Compiler = require('./Compiler');
-let Middleware = require('./class/Middleware');
-let VirtualFile = require('./class/VirtualFile');
-let { io, utils: { is_String, is_Function } } = require('./package-private');
+import { is_String, is_Function } from 'atma-utils'
+import { io } from './package-private'
+
+
+import ConfigProvider  from './ConfigProvider'
+import Compiler  from './Compiler'
+import Middleware  from './class/Middleware'
+import VirtualFile  from './class/VirtualFile'
 
 /**
  * @middlewareDefintion {
@@ -13,7 +16,7 @@ let { io, utils: { is_String, is_Function } } = require('./package-private');
  *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
  * }
  */
-module.exports = function(middlewareDefintion, io_) {
+export default function create (middlewareDefintion, io_) {
 	let { name, process, processAsync } = middlewareDefintion;
 	if (is_String(name) === false) {
 		throw Error('Middleware is not valid. Name is undefined');

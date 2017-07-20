@@ -1,4 +1,5 @@
-import { utils, io } from './package-private.js';
+import { class_Dfr } from 'atma-utils';
+import { io } from './package-private.js';
 
 export default class AtmaServer {
     static attach (app, extMap, middleware, opts) {
@@ -17,9 +18,8 @@ export default class AtmaServer {
 }
 
 let options = null;
-let File = io.File;
 
-class HttpHandler extends utils.class_Dfr {
+class HttpHandler extends class_Dfr {
 
     process (req, res, config) {
         var handler = this,
@@ -51,7 +51,7 @@ class HttpHandler extends utils.class_Dfr {
             try_createFileInstance(process.cwd(), url, onSuccess, onFailure);
         }
         function onFailure(){
-            handler.reject('Not Found - ' + url, 404, 'text/plain');
+            (handler as any).reject('Not Found - ' + url, 404, 'text/plain');
         }
         function onSuccess(file){
             var fn = file.readAsync;
@@ -71,22 +71,22 @@ class HttpHandler extends utils.class_Dfr {
                         : (file.mimeType || options.mimeType)
                         ;
                         
-                    handler.resolve(source, 200, mimeType);
+                    (handler as any).resolve(source, 200, mimeType);
                 })
         }
     }
 }
 
 function try_createFileInstance(base, url, onSuccess, onFailure) {
-    var path = net.Uri.combine(base, url);
-    File
+    var path = io.Uri.combine(base, url);
+    io  .File
         .existsAsync(path)
-        .fail(onFailure)
-        .done(function(exists){
+        .then(function(exists){
             if (exists) 
-                return onSuccess(new File(path));
+                return onSuccess(new io.File(path));
+            
             onFailure();
-        });
+        }, onFailure);
 };
 function try_createFileInstance_byConfig(config, property, url, onSuccess, onFailure){
     var base = config && config[property];
@@ -99,7 +99,7 @@ function try_createFileInstance_byConfig(config, property, url, onSuccess, onFai
 function try_createFileInstance_viaStatic(config, url, onSuccess, onFailure){
     if (_resolveStaticPath === void 0) {
         var x;
-        _resolveStaticPath = (x = global.atma)
+        _resolveStaticPath = (x = (global as any).atma)
             && (x = x.server)
             && (x = x.StaticContent)
             && (x = x.utils)

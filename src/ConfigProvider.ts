@@ -1,17 +1,17 @@
-const appcfg = require('appcfg');
+import appcfg from 'appcfg';
+import { obj_extendMany } from 'atma-utils';
 
-
-class ConfigProvider {
-	constructor (name, defaultOptions) {
+export default class ConfigProvider {
+	options: any
+	constructor (public name: string, public defaultOptions: string) {
 		this.name = name;
-		this.options = defaultOptions;		
 	}
 	load () {
-		let defaultOptions = this.options;
+		let defaultOptions = this.defaultOptions;
 		let packageOptions = PackageLoader.load(this.name);
 		let globalOptions = GlobalLoader.load(this.name);
 
-		return Utils.extendOptions(defaultOptions, packageOptions, globalOptions);
+		return obj_extendMany({}, defaultOptions, packageOptions, globalOptions);
 	}	
 }
 
@@ -24,13 +24,14 @@ class PackageLoader {
 
 class GlobalLoader {
 	static load (name) {
-		let cfg = global.app && global.app.config || global.config;
+		let _ = global as any;
+		let cfg = _.app && _.app.config || _.config;
 		return Utils.readOptions(cfg, name);
 	}
 }
 
-class Utils {
-	static readOptions (cfg, name) {
+namespace Utils {
+	export function readOptions (cfg, name) {
 		if (cfg == null) {
 			return null;
 		}
@@ -44,13 +45,5 @@ class Utils {
 			|| (cfg.settings && cfg.settings[this.name]) 
 			|| (cfg.atma && cfg.atma.settings && cfg.atma.settings[this.name])
 			;
-	}
-	static extendOptions (a, b) {
-		if (b == null) {
-			return a;
-		}
-		return Object.assign(a || {}, b);
-	}
+	};	
 }
-
-module.exports = ConfigProvider;

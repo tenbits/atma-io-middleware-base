@@ -1,22 +1,24 @@
-const SourceMapFile = require('./SourceMapFile');
-const VirtualFile = require('./VirtualFile');
-const AtmaServer = require('../AtmaServer');
+import SourceMapFile from './SourceMapFile';
+import VirtualFile from './VirtualFile';
+import AtmaServer from '../AtmaServer';
+import Compiler from '../Compiler'
+import {IMiddlewareDefinition, IOptions} from '../IConfig'
+import {obj_extendMany} from 'atma-utils'
+import io from 'atma-io'
 
-module.exports = class Middleware {
-	constructor (middlewareDefintion, options, compiler) {
-		let { extensions, mimeType } = middlewareDefintion;
+export default class Middleware {
+	name: string
 
-		options.extensions = options.extensions || extensions;
-		options.mimeType = options.mimeType || mimeType;
-		
-		
+	constructor (
+		public middlewareDefintion: IMiddlewareDefinition, 
+		public options: IOptions, 
+		public compiler: Compiler) 
+	{
 		let { name } = middlewareDefintion;
-		this.globalOptions = options;
-		
-		this.options = Object.assign({}, options);
-		this.compiler = compiler;
+
+		this.options = obj_extendMany({}, middlewareDefintion.defaultOptions, options);
 		this.name = name;
-		this.middlewareDefintion = middlewareDefintion;
+
 	}
 	process (file, config) {
 		this.compiler.compile(file, config);
@@ -53,8 +55,9 @@ module.exports = class Middleware {
 		this.processAsync(file, config, done);	
 	}
 
-	register (io, extraOptions) {
-		io.File.middleware[this.name] = this;
+	register (io_: typeof io, extraOptions?) {
+		
+		io_.File.middleware[this.name] = this;
 		let opts = this.options;
 		if (extraOptions) {
 			this.setOptions(extraOptions)
@@ -62,17 +65,14 @@ module.exports = class Middleware {
 		let {extensions, sourceMap} = opts;		
 		let extensionsMap = normalizeExtensions(extensions, this.name);
 
-		registerExtensions(io.File, extensionsMap, sourceMap);	
+		registerExtensions(io_.File, extensionsMap, sourceMap);	
 
 		if (this.middlewareDefintion.isVirtualHandler) {
-			VirtualFile.register(io, extensionsMap, this.middlewareDefintion);
+			VirtualFile.register(io_, extensionsMap, this.middlewareDefintion);
 		}	
 	}
 	setOptions (opts) {
-		this.options = Object.assign({}, this.globalOptions);
-		if (opts) {
-			this.options = Object.assign(this.options, opts); 
-		}
+		this.options = obj_extendMany({}, this.middlewareDefintion.defaultOptions, opts);
 		this.compiler.setOptions(this.options);
 	}
 };
@@ -109,7 +109,7 @@ function registerExtensions (File, extMap, withSourceMap = false) {
 	File.registerExtensions(extMap);
 	
 	if (withSourceMap) {
-		for (let ext in map) {
+		for (let ext in extMap) {
 			File.getFactory().registerHandler(
 				new RegExp('\\.' + ext + '.map$', 'i')
 				, SourceMapFile
