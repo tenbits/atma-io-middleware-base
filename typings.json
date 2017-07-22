@@ -1,0 +1,5 @@
+{
+  "globalDependencies": {
+    "assertion": "npm:assertion"
+  }
+}

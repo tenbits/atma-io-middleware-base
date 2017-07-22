@@ -1,22 +1,28 @@
 import { createLogger, ILogger } from './class/Logger';
-import { IMiddlewareDefinition, IOptions, IMiddResult } from './IConfig'
+import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from './IConfig'
 import io from 'atma-io';
+import { class_Dfr, obj_getProperty } from 'atma-utils';
 
 export default class Compiler {
 	private logger: ILogger
 	private textOnly: boolean
 	/** Single temp Configuration: will be passt on each io File read/write calls */
 	private currentConfig: any = null
+	private name: string
+
+	process_:  IMiddlewareProcessFn
+	processAsync_: IMiddlewareProcessAsyncFn
 
 	constructor (
 		public middlewareDefinition: IMiddlewareDefinition, 
 		public options: IOptions) 
 	{
-		const { process, processAsync, textOnly = true } = middlewareDefinition;
+		const { name, process, processAsync, textOnly = true } = middlewareDefinition;
 		this.middlewareDefinition = middlewareDefinition;
 		this.process_ = process;
 		this.processAsync_ = processAsync;
 		
+		this.name = name;
 		this.textOnly = textOnly;		
 		this.setOptions(options);
 	}
@@ -25,64 +31,66 @@ export default class Compiler {
 		this.options = opts;
 		this.currentConfig = null;
 	}
-	getOption (name) {
-		let val = this.currentConfig && this.currentConfig[name];
-		if (val != null) {
-			return val;
+	getOption (property) {
+		if (this.currentConfig != null) {
+			let options = obj_getProperty(this.currentConfig, `settings.${this.name}`)
+				|| obj_getProperty(this.currentConfig, `${this.name}`)
+				|| this.currentConfig;
+			
+			var x = obj_getProperty(options, property);
+			if (x != null) {
+				return x;
+			}
 		}
-		return this.options[name];
+		return obj_getProperty(this.options, property);
 	}
-	process_ (content: string | any, file: io.File, compiler: Compiler, done?: Function): IMiddResult | void {
-		throw Error('Not implemented');		
-	}
-	processAsync_ (content: string | any, file: io.File, compiler: Compiler, done: Function): any {
-		try {
-			this.compile(file, this.options);
-		} catch (error) {
-			done(error);
-			return;
-		}
-		done(null, file);
-	}
-	compile (file, config) {
-		let result = this.run_('process_', file, config);
+	
+	compile (file, config): string | IMiddResult | undefined {
+		this.currentConfig = config;
+		let result = this.process_(this.getContent_(file), file, this);
 		this.applyResult_(file, result);
+		return null;
 	}
 	compileAsync (file, config, done) {
-		this.run_('processAsync_', file, config, (error, result) => {
-			if (error) {
-				done(error);
-				return;
+		this.currentConfig = config;
+
+		let fn = this.processAsync_;
+		if (fn == null) {
+			try {
+				let result = this.compile(file, config);
+				this.applyResult_(file, result);
+				done();				
 			}
-			this.applyResult_(file, result);
-			done(null, result);
-		});
+			catch (error) {
+				done(error);				
+			}
+			return;
+		}
+		this
+			.processAsync_(
+				this.getContent_(file), 
+				file, 
+				this
+			)
+			.then(result => {
+				this.applyResult_(file, result);
+				done();
+			}, error => done(error));		
 	}
 
-	run_ (method: 'process_' | 'processAsync_', file: io.File, config: any, done?: Function) {
-		this.currentConfig = config;
-		this.logger.start();
-		let isAsync = done != null;
-		if (isAsync) {
-			done = this.logger.delegateEnd(done);
+	private applyResult_ (file: io.File, result: string | IMiddResult | undefined) {
+		if (result == null) {
+			return;
 		}
-		let result = this[method](
-			this.getContent_(file), 
-			file, 
-			this, 			 
-			done
-		);
-		if (isAsync === false) {
-			this.logger.end();
+		if (typeof result === 'string') {
+			file.content = result;
+			return;
 		}
-		return result;
-	}
-	applyResult_ (file: io.File, result) {
 		file.sourceMap = result.sourceMap;
 		file.content = result.content;
 	}
 
-	getContent_ (file: io.File) : string | any{
+	private getContent_ (file: io.File) : string | any{
 		var content = file.content;
 		if (typeof content === 'string') {
 			return content;

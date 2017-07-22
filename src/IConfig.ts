@@ -6,13 +6,22 @@ export interface IMiddResult {
     content: string | any
     sourceMap?: string | any
 }
+
+export interface IMiddlewareProcessFn {
+    (content: string | any, file: io.File, compiler: Compiler) : string | IMiddResult | undefined
+}
+
+export interface IMiddlewareProcessAsyncFn {
+    (content: string | any, file: io.File, compiler: Compiler)  : PromiseLike<string | IMiddResult | undefined>
+}
+
 export interface IMiddlewareDefinition {
     name: string
     textOnly?: boolean
     defaultOptions?: IOptions
     isVirtualHandler?: boolean
-    process: (content: string | any, file: io.File, compiler: Compiler, ...args) => IMiddResult | void
-    processAsync: (content: string | any, file: io.File, compiler: Compiler, done: ((result?: PromiseLike<IMiddResult> | void) => void)) => void
+    process: IMiddlewareProcessFn
+    processAsync: IMiddlewareProcessAsyncFn
 }
 
 export interface IOptions {

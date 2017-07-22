@@ -39,8 +39,14 @@
       "atma-io",
       "events"
     ],
+    "defaultExtensions": {
+      "js": "ts"
+    },
     "middlewares": {
-      "js": []
+      "js": [],
+      "ts": [
+        "atma-loader-ts:read"
+      ]
     }
   },
   "keywords": [],
@@ -65,8 +71,9 @@
   },
   "dependencies": {
     "appcfg": "^0.2.44",
-    "atma-io": "^0.2.27",
+    "assertion": "^1.3.34",
+    "atma-io": "^0.2.30",
     "atma-loader-ts": "^1.0.0",
-    "atma-utils": "^0.1.11"
+    "atma-utils": "^0.1.13"
   }
 }

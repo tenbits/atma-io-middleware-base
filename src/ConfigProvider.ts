@@ -1,4 +1,4 @@
-import appcfg from 'appcfg';
+import * as appcfg from 'appcfg';
 import { obj_extendMany } from 'atma-utils';
 
 export default class ConfigProvider {

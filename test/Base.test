@@ -11,10 +11,11 @@ UTest({
 	'simple middleware for an extension' () {
 		Base.create({
 			name: 'txt_make_upper',
-			extensions: {
-				lowered_txt: 'read'
+			defaultOptions: {
+				extensions: {
+					lowered_txt: 'read'
+				}
 			},
-			defaultOptions: {},
 			process: assert.await(function(content){
 				return { content: content.toUpperCase() }
 			})
@@ -26,10 +27,11 @@ UTest({
 	'simple middleware for regexp' () {
 		Base.create({
 			name: 'txt_boo_upper',
-			extensions: {
-				'/boo/': 'read'
+			defaultOptions: {
+				extensions: {
+					'/boo/': 'read'
+				}
 			},
-			defaultOptions: {},
 			process: assert.await(function(content){
 				return { content: content.toUpperCase() }
 			})
@@ -42,10 +44,11 @@ UTest({
 		Base.create({
 			name: 'my_virtual_file',
 			isVirtualHandler: true,
-			extensions: {
-				'/main_mem/': 'read'
+			defaultOptions: {
+				extensions: {
+					'/main_mem/': 'read'
+				},				
 			},
-			defaultOptions: {},
 			process: assert.await(function(content){
 				return { content: 'hello' };
 			})
@@ -53,10 +56,11 @@ UTest({
 
 		Base.create({
 			name: 'my_virtual_file_toUpper',
-			extensions: {
-				'/main_mem/': 'read'
+			defaultOptions: {
+				extensions: {
+					'/main_mem/': 'read'
+				}				
 			},
-			defaultOptions: {},
 			process: assert.await(function(content){
 				return { content: content.toUpperCase() };
 			})
@@ -68,10 +72,11 @@ UTest({
 	'should intercept the output' () {
 		Base.create({
 			name: 'txt_make_upper',
-			extensions: {
-				lowered_txt: 'read'
+			defaultOptions: {
+				extensions: {
+					lowered_txt: 'read'
+				}				
 			},
-			defaultOptions: {},
 			process: assert.await(function(content){
 				console.log(content);
 				return { content: content.toUpperCase() }
@@ -84,5 +89,46 @@ UTest({
 		
 		var content = io.File.read('/test/fixtures/foo.lowered_txt');
 		eq_(content, 'FOO');
-	}
+	},
+	'fails the middleware': {
+		'$before' () {
+			Base.create({
+				name: 'txt_make_upper',
+				defaultOptions: {
+					extensions: {
+						lowered_txt: 'read'
+					}				
+				},
+				process (content){
+					throw Error('My Sync Error');
+				},
+				processAsync () {					
+					return Promise.reject(Error('My Async Error'));
+				}
+			}, io);			
+		},	
+		'should fail async' (done) {
+			io
+				.File
+				.readAsync('/test/fixtures/foo.lowered_txt')
+				.done(assert.avoid())
+				.fail(error => {
+					eq_(error.message, 'My Async Error');
+					done();
+				});		
+		},
+		'should fail sync' () {
+			assert.throws(() => {
+				io.File.read('/test/fixtures/foo.lowered_txt')
+			})
+
+			try {
+				io.File.read('/test/fixtures/foo.lowered_txt')
+			}
+			catch (error) {
+				eq_(error.message, 'My Sync Error');
+			}
+			
+		}
+	}	
 })

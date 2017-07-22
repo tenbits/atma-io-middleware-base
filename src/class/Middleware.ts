@@ -1,10 +1,10 @@
 import SourceMapFile from './SourceMapFile';
-import VirtualFile from './VirtualFile';
+import { register } from './VirtualFile';
 import AtmaServer from '../AtmaServer';
 import Compiler from '../Compiler'
 import {IMiddlewareDefinition, IOptions} from '../IConfig'
-import {obj_extendMany} from 'atma-utils'
-import io from 'atma-io'
+import {obj_extendMany, obj_extend} from 'atma-utils'
+import { io } from '../package-private'
 
 export default class Middleware {
 	name: string
@@ -29,10 +29,10 @@ export default class Middleware {
 
 	/** Atma-Server */
 	attach (app) {
-		let globalOpts = Object.assign({}, this.options);
+		let globalOpts = obj_extend({}, this.options);
 		let appOptions = app.config && (app.config.$get(`settings.${this.name}`) || app.config.$get(`${this.name}`));
 		if (appOptions) {
-			globalOpts = Object.assign(globalOpts, appOptions);
+			globalOpts = obj_extend(globalOpts, appOptions);
 		}
 		let extensions = globalOpts.extensions;
 		if (extensions) {
@@ -68,7 +68,7 @@ export default class Middleware {
 		registerExtensions(io_.File, extensionsMap, sourceMap);	
 
 		if (this.middlewareDefintion.isVirtualHandler) {
-			VirtualFile.register(io_, extensionsMap, this.middlewareDefintion);
+			register(io_, extensionsMap, this.middlewareDefintion);
 		}	
 	}
 	setOptions (opts) {

@@ -18,40 +18,42 @@ class VirtualFile extends io.File {
     existsAsync () {
         return class_Dfr.resolve(true);
     }
-	// read (opts) {
-    //     this.content = '';
-    //     const { File } = io;
-    //     File.processHooks('read', <File> this, opts, null);
-	// 	return this.content;
-	// }
+	read (opts) {
+        this.content = '';
+        
+        io.File.processHooks('read', this, opts, null);
+		return this.content;
+	}
 	
-	// readAsync (opts){
-    //     this.content = '';
-    //     const dfr = new class_Dfr<any>();
-    //     io.File.processHooks('read', this, opts, (error) => {
-    //         if (error) {
-    //             dfr.reject(error);
-    //             return;
-    //         }
-    //         dfr.resolve(this.content);
-    //     });
-    //     return dfr;
-	// }
-    // write (content, opts) {
-    //     throw new Error ('Middleware implements no write-logic');
-    //     return this;
-    // }
-    // writeAsync (content, opts) {
-    //     throw new Error ('Middleware implements no write-logic');
-    //     return this;
-    // }
-    // copyTo (path) {
-    //     this.read(null);
-    //     this.write(this.content, path);
-    // }
-    // copyAsync (path) {
-    //     return this
-    //         .readAsync(null)
-    //         .then(() => this.writeAsync(this.content, path));
-    // }
+	readAsync (opts) {
+        this.content = '';
+        const dfr = new class_Dfr();
+        
+        io.File.processHooks('read', this, opts, (error) => {
+            if (error) {
+                dfr.reject(error);
+                return;
+            }
+            dfr.resolve(this.content);
+        });
+        return dfr;
+	}
+    write (content, opts): this {
+        throw new Error ('Middleware implements no write-logic'); 
+    }
+    writeAsync (content, opts): Promise<void> {
+        throw new Error ('Middleware implements no write-logic');
+    }
+    copyTo (path): this {
+        this.read(null);
+        this.write(this.content, path);
+        return this;
+    }
+    copyAsync (path) {
+        return this
+            .readAsync(null)
+            .then(() => {
+                return this.writeAsync(this.content, path);
+            });
+    }
 };

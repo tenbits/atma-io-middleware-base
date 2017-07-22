@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {  
+    "baseUrl": "./src",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./typings"
+    ],
+    "target":"es5"    
+  }
+}
