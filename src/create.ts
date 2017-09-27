@@ -1,11 +1,10 @@
 import { is_String, is_Function } from 'atma-utils'
 import { io } from './package-private'
 
-
+import { IMiddlewareDefinition } from './IConfig'
 import ConfigProvider  from './ConfigProvider'
 import Compiler  from './Compiler'
 import Middleware  from './class/Middleware'
-import VirtualFile  from './class/VirtualFile'
 
 /**
  * @middlewareDefintion {
@@ -16,7 +15,7 @@ import VirtualFile  from './class/VirtualFile'
  *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
  * }
  */
-export default function create (middlewareDefintion, io_) {
+export default function create (middlewareDefintion: IMiddlewareDefinition, io_) {
 	let { name, process, processAsync } = middlewareDefintion;
 	if (is_String(name) === false) {
 		throw Error('Middleware is not valid. Name is undefined');
@@ -34,7 +33,7 @@ export default function create (middlewareDefintion, io_) {
 	let middleware = new Middleware(middlewareDefintion, options, compiler);
 	let ioLib = io_ || io;
 	if (ioLib != null) {
-		middleware.register(io);
+		middleware.init(io);
 	}
 	return middleware;
 };

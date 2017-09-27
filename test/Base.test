@@ -1,3 +1,4 @@
+import { } from '../src/Compiler';
 let io = require('atma-io');
 
 UTest({
@@ -69,26 +70,29 @@ UTest({
 		var content = io.File.read('/test/fixtures/main_memory.txt');
 		eq_(content, 'HELLO');
 	},
-	'should intercept the output' () {
+	'should write to custom logger' () {
+		let logger = sinon.spy();
 		Base.create({
 			name: 'txt_make_upper',
 			defaultOptions: {
 				extensions: {
 					lowered_txt: 'read'
-				}				
+				},
+				logger: {
+					type: 'custom',
+					write: logger
+				}
 			},
-			process: assert.await(function(content){
-				console.log(content);
+			process: assert.await(function(content, file, compiler){
+
+				compiler.logger.write('Hello')
 				return { content: content.toUpperCase() }
-			}),
-			logger: {
-				type: 'custom',
-				write: sinon.spy()
-			}
+			}),			
 		}, io);
 		
 		var content = io.File.read('/test/fixtures/foo.lowered_txt');
 		eq_(content, 'FOO');
+		deepEq_(logger.args, [ ['Hello'] ]);
 	},
 	'fails the middleware': {
 		'$before' () {

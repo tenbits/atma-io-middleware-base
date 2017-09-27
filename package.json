@@ -18,7 +18,9 @@
   ],
   "devDependencies": {
     "@types/node": "^8.0.14",
-    "app-bundler": "0.0.33"
+    "app-bundler": "0.0.33",
+    "request": "^2.81.0",
+    "tree-kill": "^1.1.0"
   },
   "scripts": {
     "build": "app-bundler",

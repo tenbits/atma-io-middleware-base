@@ -1,9 +1,12 @@
 import * as appcfg from 'appcfg';
 import { obj_extendMany } from 'atma-utils';
+import { IOptions } from './IConfig'
+
+
 
 export default class ConfigProvider {
-	options: any
-	constructor (public name: string, public defaultOptions: string) {
+	options: IOptions
+	constructor (public name: string, public defaultOptions: IOptions) {
 		this.name = name;
 	}
 	load () {
@@ -30,8 +33,8 @@ class GlobalLoader {
 	}
 }
 
-namespace Utils {
-	export function readOptions (cfg, name) {
+export namespace Utils {
+	export function readOptions (cfg, name: string) {
 		if (cfg == null) {
 			return null;
 		}

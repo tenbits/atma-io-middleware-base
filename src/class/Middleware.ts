@@ -5,6 +5,9 @@ import Compiler from '../Compiler'
 import {IMiddlewareDefinition, IOptions} from '../IConfig'
 import {obj_extendMany, obj_extend} from 'atma-utils'
 import { io } from '../package-private'
+import { Utils } from '../ConfigProvider'
+
+let _currentIo: typeof io = null;
 
 export default class Middleware {
 	name: string
@@ -26,6 +29,24 @@ export default class Middleware {
 	processAsync (file, config, done) {
 		this.compiler.compileAsync(file, config, done);
 	}
+	init (io_: typeof io, extraOptions?) {
+		_currentIo = io_;
+
+		io_.File.middleware[this.name] = this;
+		let opts = this.options;
+		if (extraOptions) {
+			this.setOptions(extraOptions)
+		}
+		let {extensions, sourceMap} = opts;		
+		let extensionsMap = normalizeExtensions(extensions, this.name);
+
+		registerExtensions(io_.File, extensionsMap, sourceMap);	
+
+		if (this.middlewareDefintion.isVirtualHandler) {
+			register(io_, extensionsMap, this.middlewareDefintion);
+		}	
+	}
+	
 
 	/** Atma-Server */
 	attach (app) {
@@ -40,6 +61,24 @@ export default class Middleware {
 		}
 		AtmaServer.attach(app, extensions, this, globalOpts);
 	}
+
+	/** Atma.Plugin */
+	register (appcfg) {
+		let extraOptions = Utils.readOptions(appcfg, this.name);
+		if (extraOptions == null) {
+			return;			
+		}
+		this.setOptions(extraOptions)
+
+		let { extensions, sourceMap } = extraOptions;
+		if (extensions) {
+			let extensionsMap = normalizeExtensions(extensions, this.name);
+
+			if (_currentIo) {
+				registerExtensions(_currentIo.File, extensionsMap, sourceMap);	
+			}
+		}
+	}
 	
 	/** IO **/
 	read (file, config) {
@@ -53,23 +92,6 @@ export default class Middleware {
 	}
 	writeAsync (file, config, done) {
 		this.processAsync(file, config, done);	
-	}
-
-	register (io_: typeof io, extraOptions?) {
-		
-		io_.File.middleware[this.name] = this;
-		let opts = this.options;
-		if (extraOptions) {
-			this.setOptions(extraOptions)
-		}
-		let {extensions, sourceMap} = opts;		
-		let extensionsMap = normalizeExtensions(extensions, this.name);
-
-		registerExtensions(io_.File, extensionsMap, sourceMap);	
-
-		if (this.middlewareDefintion.isVirtualHandler) {
-			register(io_, extensionsMap, this.middlewareDefintion);
-		}	
 	}
 	setOptions (opts) {
 		this.options = obj_extendMany({}, this.middlewareDefintion.defaultOptions, opts);

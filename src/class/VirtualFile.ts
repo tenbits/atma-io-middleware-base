@@ -1,9 +1,10 @@
 import { io } from '../package-private';
 import { class_create, class_Dfr } from 'atma-utils';
 import { toRegexp } from '../utils/regexp';
+import { IMiddlewareDefinition } from '../IConfig'
 
 
-export function register (io, extMap, middlewareDefinition) {
+export function register (io, extMap, middlewareDefinition: IMiddlewareDefinition) {
     let Ctor = class_create(VirtualFile, middlewareDefinition.VirtualFile);
     Object.keys(extMap).forEach(ext => {
         io.File.getFactory().registerHandler(toRegexp(ext), Ctor);

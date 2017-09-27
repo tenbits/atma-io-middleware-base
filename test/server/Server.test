@@ -1,0 +1,29 @@
+let request = require('request');
+let kill = require('tree-kill');
+UTest({
+    $config: {
+        timeout: 5000
+    },
+    $before (done) {
+        this.$process = new atma.shell.Process({
+            command: 'atma server --port 5775',
+            cwd: './test/server',
+            matchReady: /Listen /
+        });
+        this
+            .$process
+            .on('process_ready',  done)
+            .run();
+    },
+    $teardown (done) {
+        kill(this.$process.children[0].pid, 'SIGKILL', done);
+    },
+
+    'should get file' (done) {
+
+        request('http://localhost:5775/fixtures/my.foo.txt', function(error, req, body){            
+            eq_(body, 'UpperCased: FOO');
+            done();
+        })
+    }
+})

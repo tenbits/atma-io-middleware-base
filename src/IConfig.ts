@@ -1,4 +1,4 @@
-import io from 'atma-io';
+import * as io from 'atma-io';
 import Compiler from './Compiler'
 import { LogOptions } from './class/Logger'
 
@@ -20,6 +20,7 @@ export interface IMiddlewareDefinition {
     textOnly?: boolean
     defaultOptions?: IOptions
     isVirtualHandler?: boolean
+    VirtualFile?: IVirtualFileDefinition
     process: IMiddlewareProcessFn
     processAsync: IMiddlewareProcessAsyncFn
 }
@@ -29,4 +30,16 @@ export interface IOptions {
     mimeType?: string
     extensions?: string[] | {[ext: string]: string}
     sourceMap?: boolean
+    [key: string]: any
+}
+
+export interface IVirtualFileDefinition {
+    exists? (): boolean 
+    existsAsync? (): PromiseLike<boolean>
+	read? (opts?: any): any	
+    readAsync? (opts?: any): PromiseLike<any>    
+    write? (content: any, opts?: any): this 
+    writeAsync? (content: any, opts?: any): PromiseLike<void>
+    copyTo? (path: string): this
+    copyAsync? (path: string): Promise<void> 
 }
