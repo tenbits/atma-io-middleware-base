@@ -1,6 +1,6 @@
 import { createLogger, ILogger } from './class/Logger';
 import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from './IConfig'
-import io from 'atma-io';
+import * as io from 'atma-io';
 import { class_Dfr, obj_getProperty } from 'atma-utils';
 
 export default class Compiler {
@@ -43,6 +43,9 @@ export default class Compiler {
 			}
 		}
 		return obj_getProperty(this.options, property);
+	}
+	onMount (io) {
+		this.middlewareDefinition.onMount && this.middlewareDefinition.onMount(io);
 	}
 	
 	compile (file, config): string | IMiddResult | undefined {

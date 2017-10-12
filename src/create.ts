@@ -1,5 +1,5 @@
 import { is_String, is_Function } from 'atma-utils'
-import { io } from './package-private'
+import { io } from './dependencies'
 
 import { IMiddlewareDefinition } from './IConfig'
 import ConfigProvider  from './ConfigProvider'

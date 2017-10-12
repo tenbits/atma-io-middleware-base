@@ -1,4 +1,4 @@
-import { io } from '../package-private';
+import { io } from '../dependencies';
 
 export function createLogger (options: LogOptions = { type: 'std'}) {
     switch (options.type) {
@@ -50,13 +50,13 @@ export abstract class ILogger {
     abstract write (x: string, level?: 'error' | 'warn' | 'info')
 };
 
-class StdLogger extends ILogger {
+export class StdLogger extends ILogger {
     write(x: string) {
         console.log(x);
     }
 }
 
-class SilentLogger extends ILogger {
+export class SilentLogger extends ILogger {
     constructor (opts) {
         super(opts);
         this.options.interceptStd = true;
@@ -120,7 +120,7 @@ let Interceptor;
         }
         _currentListener.write('stdout', str);
     };
-    function onStdErr () {
+    function onStdErr (str) {
         if (_currentListener == null) {
             return;
         }

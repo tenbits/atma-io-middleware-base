@@ -1,5 +1,5 @@
 import { class_Dfr } from 'atma-utils';
-import { io } from './package-private';
+import { io } from './dependencies';
 
 export default class AtmaServer {
     static attach (app, extMap, middleware, opts) {

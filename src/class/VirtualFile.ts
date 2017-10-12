@@ -1,4 +1,4 @@
-import { io } from '../package-private';
+import { io } from '../dependencies';
 import { class_create, class_Dfr } from 'atma-utils';
 import { toRegexp } from '../utils/regexp';
 import { IMiddlewareDefinition } from '../IConfig'
@@ -17,7 +17,7 @@ class VirtualFile extends io.File {
         return true;
     }
     existsAsync () {
-        return class_Dfr.resolve(true);
+        return class_Dfr.resolve(true) as PromiseLike<boolean>;
     }
 	read (opts) {
         this.content = '';
@@ -37,12 +37,12 @@ class VirtualFile extends io.File {
             }
             dfr.resolve(this.content);
         });
-        return dfr;
+        return dfr as PromiseLike<string>;
 	}
     write (content, opts): this {
         throw new Error ('Middleware implements no write-logic'); 
     }
-    writeAsync (content, opts): Promise<void> {
+    writeAsync (content, opts): PromiseLike<any> {
         throw new Error ('Middleware implements no write-logic');
     }
     copyTo (path): this {

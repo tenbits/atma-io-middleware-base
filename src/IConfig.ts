@@ -23,6 +23,7 @@ export interface IMiddlewareDefinition {
     VirtualFile?: IVirtualFileDefinition
     process: IMiddlewareProcessFn
     processAsync: IMiddlewareProcessAsyncFn
+    onMount: (ioLib: typeof io) => void
 }
 
 export interface IOptions {

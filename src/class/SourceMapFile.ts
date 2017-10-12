@@ -1,4 +1,4 @@
-import { io } from '../package-private';
+import { io } from '../dependencies';
 import { class_Dfr } from 'atma-utils';
 
 export default class SourceMapFile extends io.File {
@@ -20,15 +20,19 @@ export default class SourceMapFile extends io.File {
 			return super.readAsync(opts)
 		
 		var path = this.getSourcePath();
-		if (path == null) 
-			return new Deferred.reject({code: 404});
+		if (path == null) {
+			return new class_Dfr().reject({
+				code: 404, 
+				filename: this.uri.toLocalFile(), 
+				message: 'Path equals original'
+			}) as PromiseLike<any>
+		}
 		
-		var file = new io.File(path);
-		return file
-			.readAsync(opts)
-			.then(() => {
-				return (this.content = file.sourceMap);
-			});
+		let file = new io.File(path);
+		let prom = file.readAsync(opts);
+		return prom.then(() => {
+			return (this.content = file.sourceMap);
+		});
 	}
 	exists (check?) {
 		if (super.exists()) 

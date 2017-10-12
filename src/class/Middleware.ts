@@ -4,7 +4,7 @@ import AtmaServer from '../AtmaServer';
 import Compiler from '../Compiler'
 import {IMiddlewareDefinition, IOptions} from '../IConfig'
 import {obj_extendMany, obj_extend} from 'atma-utils'
-import { io } from '../package-private'
+import { io } from '../dependencies'
 import { Utils } from '../ConfigProvider'
 
 let _currentIo: typeof io = null;
@@ -44,7 +44,8 @@ export default class Middleware {
 
 		if (this.middlewareDefintion.isVirtualHandler) {
 			register(io_, extensionsMap, this.middlewareDefintion);
-		}	
+		}
+		this.compiler.onMount(_currentIo);
 	}
 	
 
