@@ -15,7 +15,7 @@ import Middleware  from './class/Middleware'
  *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
  * }
  */
-export default function create (middlewareDefintion: IMiddlewareDefinition, io_) {
+export default function create (middlewareDefintion: IMiddlewareDefinition, IO?: typeof io) {
 	let { name, process, processAsync } = middlewareDefintion;
 	if (is_String(name) === false) {
 		throw Error('Middleware is not valid. Name is undefined');
@@ -31,7 +31,7 @@ export default function create (middlewareDefintion: IMiddlewareDefinition, io_)
 	
 	let compiler = new Compiler(middlewareDefintion, options);
 	let middleware = new Middleware(middlewareDefintion, options, compiler);
-	let ioLib = io_ || io;
+	let ioLib = IO || io;
 	if (ioLib != null) {
 		middleware.init(io);
 	}

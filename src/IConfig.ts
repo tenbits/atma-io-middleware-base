@@ -8,11 +8,11 @@ export interface IMiddResult {
 }
 
 export interface IMiddlewareProcessFn {
-    (content: string | any, file: io.File, compiler: Compiler) : string | IMiddResult | undefined
+    (content: string | any, file?: io.File, compiler?: Compiler) : string | IMiddResult | undefined
 }
 
 export interface IMiddlewareProcessAsyncFn {
-    (content: string | any, file: io.File, compiler: Compiler)  : PromiseLike<string | IMiddResult | undefined>
+    (content: string | any, file?: io.File, compiler?: Compiler)  : PromiseLike<string | IMiddResult | undefined>
 }
 
 export interface IMiddlewareDefinition {
@@ -22,8 +22,8 @@ export interface IMiddlewareDefinition {
     isVirtualHandler?: boolean
     VirtualFile?: IVirtualFileDefinition
     process: IMiddlewareProcessFn
-    processAsync: IMiddlewareProcessAsyncFn
-    onMount: (ioLib: typeof io) => void
+    processAsync?: IMiddlewareProcessAsyncFn
+    onMount?: (ioLib: typeof io) => void
 }
 
 export interface IOptions {

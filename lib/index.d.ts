@@ -9,6 +9,7 @@ declare module 'atma-io-middleware-base' {
 }
 
 declare module 'atma-io-middleware-base/create' {
+    import { io } from 'atma-io-middleware-base/dependencies';
     import { IMiddlewareDefinition } from 'atma-io-middleware-base/IConfig';
     import Middleware from 'atma-io-middleware-base/class/Middleware';
     /**
@@ -20,7 +21,14 @@ declare module 'atma-io-middleware-base/create' {
       *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
       * }
       */
-    export default function create(middlewareDefintion: IMiddlewareDefinition, io_: any): Middleware;
+    export default function create(middlewareDefintion: IMiddlewareDefinition, IO?: typeof io): Middleware;
+}
+
+declare module 'atma-io-middleware-base/dependencies' {
+    import * as IO from 'atma-io';
+    import * as utils from 'atma-utils';
+    const io: typeof IO;
+    export { io, utils };
 }
 
 declare module 'atma-io-middleware-base/IConfig' {
@@ -32,10 +40,10 @@ declare module 'atma-io-middleware-base/IConfig' {
         sourceMap?: string | any;
     }
     export interface IMiddlewareProcessFn {
-        (content: string | any, file: io.File, compiler: Compiler): string | IMiddResult | undefined;
+        (content: string | any, file?: io.File, compiler?: Compiler): string | IMiddResult | undefined;
     }
     export interface IMiddlewareProcessAsyncFn {
-        (content: string | any, file: io.File, compiler: Compiler): PromiseLike<string | IMiddResult | undefined>;
+        (content: string | any, file?: io.File, compiler?: Compiler): PromiseLike<string | IMiddResult | undefined>;
     }
     export interface IMiddlewareDefinition {
         name: string;
@@ -44,8 +52,8 @@ declare module 'atma-io-middleware-base/IConfig' {
         isVirtualHandler?: boolean;
         VirtualFile?: IVirtualFileDefinition;
         process: IMiddlewareProcessFn;
-        processAsync: IMiddlewareProcessAsyncFn;
-        onMount: (ioLib: typeof io) => void;
+        processAsync?: IMiddlewareProcessAsyncFn;
+        onMount?: (ioLib: typeof io) => void;
     }
     export interface IOptions {
         logger?: LogOptions;
@@ -134,12 +142,5 @@ declare module 'atma-io-middleware-base/class/Logger' {
         constructor(opts: any);
         write(x: string): void;
     }
-}
-
-declare module 'atma-io-middleware-base/dependencies' {
-    import * as IO from 'atma-io';
-    import * as utils from 'atma-utils';
-    const io: typeof IO;
-    export { io, utils };
 }
 
