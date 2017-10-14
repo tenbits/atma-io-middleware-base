@@ -72,6 +72,7 @@ declare module 'atma-io-middleware-base/IConfig' {
         process: IMiddlewareProcessFn;
         processAsync?: IMiddlewareProcessAsyncFn;
         onMount?: (ioLib: typeof io) => void;
+        action?: IAtmaActionDefinition;
     }
     export interface IOptions {
         logger?: LogOptions;
@@ -91,6 +92,15 @@ declare module 'atma-io-middleware-base/IConfig' {
         writeAsync?(content: any, opts?: any): PromiseLike<void>;
         copyTo?(path: string): this;
         copyAsync?(path: string): Promise<void>;
+    }
+    export interface IAtmaActionDefinition {
+        help?: {
+            description?: string;
+            args?: {
+                [key: string]: string;
+            };
+            process(config: object, done: Function): any;
+        };
     }
 }
 

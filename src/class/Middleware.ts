@@ -79,6 +79,9 @@ export default class Middleware {
 				registerExtensions(_currentIo.File, extensionsMap, sourceMap);	
 			}
 		}
+		if (appcfg.actions && this.middlewareDefintion.action) {
+			appcfg.actions[this.name] = this.middlewareDefintion.action;
+		}
 	}
 	
 	/** IO **/
