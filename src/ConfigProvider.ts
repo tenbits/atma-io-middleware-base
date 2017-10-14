@@ -1,5 +1,5 @@
 import * as appcfg from 'appcfg';
-import { obj_extendMany } from 'atma-utils';
+import { is_rawObject } from 'atma-utils';
 import { IOptions } from './IConfig'
 
 
@@ -14,8 +14,12 @@ export default class ConfigProvider {
 		let packageOptions = PackageLoader.load(this.name);
 		let globalOptions = GlobalLoader.load(this.name);
 
-		return obj_extendMany({}, defaultOptions, packageOptions, globalOptions);
-	}	
+		let options = {};
+		Utils.mergeDeep(options, defaultOptions);
+		Utils.mergeDeep(options, packageOptions);
+		Utils.mergeDeep(options, globalOptions);
+		return options;
+	}
 }
 
 class PackageLoader {
@@ -48,5 +52,24 @@ export namespace Utils {
 			|| (cfg.settings && cfg.settings[this.name]) 
 			|| (cfg.atma && cfg.atma.settings && cfg.atma.settings[this.name])
 			;
-	};	
+	};
+
+	export function mergeDeep(a: object, b: object) {
+		for (var key in b) {
+			let bVal = b[key];
+			if (bVal == null) {
+				continue;
+			}
+			let aVal = a[key];
+			if (aVal == null) {
+				a[key] = b[key];
+				continue;
+			}
+			if (is_rawObject(aVal) && is_rawObject(bVal)) {
+				mergeDeep(aVal, bVal);
+				continue;
+			}
+			a[key] = bVal;
+		}
+	}
 }

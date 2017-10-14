@@ -1,4 +1,6 @@
+import Compiler from './Compiler';
 import create from './create';
+import { io } from './dependencies'
 
-export { create }
+export { create, io, Compiler }
 

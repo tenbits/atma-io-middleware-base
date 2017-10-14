@@ -4,8 +4,26 @@
 //   ../atma-utils
 
 declare module 'atma-io-middleware-base' {
+    import Compiler from 'atma-io-middleware-base/Compiler';
     import create from 'atma-io-middleware-base/create';
-    export { create };
+    import { io } from 'atma-io-middleware-base/dependencies';
+    export { create, io, Compiler };
+}
+
+declare module 'atma-io-middleware-base/Compiler' {
+    import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from 'atma-io-middleware-base/IConfig';
+    export default class Compiler {
+        middlewareDefinition: IMiddlewareDefinition;
+        options: IOptions;
+        process_: IMiddlewareProcessFn;
+        processAsync_: IMiddlewareProcessAsyncFn;
+        constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
+        setOptions(opts: IOptions): void;
+        getOption(property: any): {};
+        onMount(io: any): void;
+        compile(file: any, config: any): string | IMiddResult | undefined;
+        compileAsync(file: any, config: any, done: any): void;
+    }
 }
 
 declare module 'atma-io-middleware-base/create' {
@@ -99,22 +117,6 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         write(file: any, config: any): void;
         writeAsync(file: any, config: any, done: any): void;
         setOptions(opts: any): void;
-    }
-}
-
-declare module 'atma-io-middleware-base/Compiler' {
-    import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from 'atma-io-middleware-base/IConfig';
-    export default class Compiler {
-        middlewareDefinition: IMiddlewareDefinition;
-        options: IOptions;
-        process_: IMiddlewareProcessFn;
-        processAsync_: IMiddlewareProcessAsyncFn;
-        constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
-        setOptions(opts: IOptions): void;
-        getOption(property: any): {};
-        onMount(io: any): void;
-        compile(file: any, config: any): string | IMiddResult | undefined;
-        compileAsync(file: any, config: any, done: any): void;
     }
 }
 
