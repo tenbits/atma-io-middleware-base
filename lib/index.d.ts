@@ -99,7 +99,7 @@ declare module 'atma-io-middleware-base/IConfig' {
             args?: {
                 [key: string]: string;
             };
-            process(config: object, done: Function): any;
+            process(config: object, done: Function): any | void;
         };
     }
 }
