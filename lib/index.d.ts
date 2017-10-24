@@ -69,7 +69,7 @@ declare module 'atma-io-middleware-base/IConfig' {
         defaultOptions?: IOptions;
         isVirtualHandler?: boolean;
         VirtualFile?: IVirtualFileDefinition;
-        process: IMiddlewareProcessFn;
+        process?: IMiddlewareProcessFn;
         processAsync?: IMiddlewareProcessAsyncFn;
         onMount?: (ioLib: typeof io) => void;
         action?: IAtmaActionDefinition;
