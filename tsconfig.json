@@ -12,7 +12,8 @@
 		  "./typings/"
 		],
 		"types": [
-		  "atma-class",
+			"atma-class",
+			"atma-io",
 		  "string",
 		  "node"
 		],

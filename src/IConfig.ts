@@ -1,4 +1,5 @@
-import * as io from 'atma-io';
+
+import { io } from './dependencies';
 import Compiler from './Compiler'
 import { LogOptions } from './class/Logger'
 

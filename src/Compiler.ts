@@ -1,6 +1,8 @@
+/// <reference path="../node_modules/atma-io/types/global.d.ts" />
+
 import { createLogger, ILogger } from './class/Logger';
 import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from './IConfig'
-import * as io from 'atma-io';
+import { io } from './dependencies';
 import { class_Dfr, obj_getProperty } from 'atma-utils';
 
 export default class Compiler {
