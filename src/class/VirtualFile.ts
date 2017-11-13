@@ -6,7 +6,7 @@ import { IMiddlewareDefinition } from '../IConfig'
 
 export function register (io, extMap, middlewareDefinition: IMiddlewareDefinition) {
     let Ctor = class_create(VirtualFile, middlewareDefinition.VirtualFile);
-    Object.keys(extMap).forEach(ext => {
+    extMap && Object.keys(extMap).forEach(ext => {
         io.File.getFactory().registerHandler(toRegexp(ext), Ctor);
     });
 };

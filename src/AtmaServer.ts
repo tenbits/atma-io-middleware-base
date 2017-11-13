@@ -4,7 +4,7 @@ import { io } from './dependencies';
 export default class AtmaServer {
     static attach (app, extMap, middleware, opts) {
         options = opts;
-        Object.keys(extMap).forEach(ext => {
+        extMap && Object.keys(extMap).forEach(ext => {
             if (ext[0] !== '/') {
                 var rgx = `\\.${ext}($|\\?)`;
                 var rgx_map = `\\.${ext}\\.map($|\\?)`;
