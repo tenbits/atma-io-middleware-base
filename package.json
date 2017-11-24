@@ -1,7 +1,7 @@
 {
   "name": "atma-io-middleware-base",
   "description": "Atma IO middleware abstraction",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "homepage": "https://github.com/tenbits/atma-io-middleware-base",
   "contributors": [],
   "main": "./lib/index.js",
@@ -26,7 +26,7 @@
     "tree-kill": "^1.1.0"
   },
   "scripts": {
-    "build": "app-bundler",
+    "build": "app-bundler && npm run build-types",
     "watch": "app-bundler -watch",
     "build-types": "tsc -p . & atma custom tools/build-dts"
   },

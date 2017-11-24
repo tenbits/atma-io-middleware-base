@@ -12,10 +12,8 @@
 		  "./typings/"
 		],
 		"types": [
-			"atma-class",
 			"atma-io",
-		  "string",
-		  "node"
+		 	"node"
 		],
 		"declaration": true,
 		"target":"es5",
