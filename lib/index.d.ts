@@ -10,12 +10,18 @@ declare module 'atma-io-middleware-base' {
 }
 
 declare module 'atma-io-middleware-base/Compiler' {
+    import { ILogger } from 'atma-io-middleware-base/class/Logger';
     import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from 'atma-io-middleware-base/IConfig';
     export default class Compiler {
         middlewareDefinition: IMiddlewareDefinition;
         options: IOptions;
-        process_: IMiddlewareProcessFn;
-        processAsync_: IMiddlewareProcessAsyncFn;
+        logger: ILogger;
+        textOnly: boolean;
+        /** Single temp Configuration: will be passt on each io File read/write calls */
+        currentConfig: any;
+        name: string;
+        protected process_: IMiddlewareProcessFn;
+        protected processAsync_: IMiddlewareProcessAsyncFn;
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
         setOptions(opts: IOptions): void;
         getOption(property: any): {};
@@ -45,6 +51,32 @@ declare module 'atma-io-middleware-base/dependencies' {
     import * as utils from 'atma-utils';
     const io: any;
     export { io, utils };
+}
+
+declare module 'atma-io-middleware-base/class/Logger' {
+    export function createLogger(options?: LogOptions): SilentLogger;
+    export interface LogOptions {
+        type: 'silent' | 'file' | 'custom' | 'std';
+        interceptStd?: boolean;
+        file?: string;
+        write?: (x: string) => void;
+        [key: string]: any;
+    }
+    export abstract class ILogger {
+        options: LogOptions;
+        constructor(options: LogOptions);
+        start(): void;
+        end(): void;
+        delegateEnd(onComplete: Function): Function;
+        abstract write(x: string, level?: 'error' | 'warn' | 'info'): any;
+    }
+    export class StdLogger extends ILogger {
+        write(x: string): void;
+    }
+    export class SilentLogger extends ILogger {
+        constructor(opts: any);
+        write(x: string): void;
+    }
 }
 
 declare module 'atma-io-middleware-base/IConfig' {
@@ -125,32 +157,6 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         write(file: any, config: any): void;
         writeAsync(file: any, config: any, done: any): void;
         setOptions(opts: any): void;
-    }
-}
-
-declare module 'atma-io-middleware-base/class/Logger' {
-    export function createLogger(options?: LogOptions): SilentLogger;
-    export interface LogOptions {
-        type: 'silent' | 'file' | 'custom' | 'std';
-        interceptStd?: boolean;
-        file?: string;
-        write?: (x: string) => void;
-        [key: string]: any;
-    }
-    export abstract class ILogger {
-        options: LogOptions;
-        constructor(options: LogOptions);
-        start(): void;
-        end(): void;
-        delegateEnd(onComplete: Function): Function;
-        abstract write(x: string, level?: 'error' | 'warn' | 'info'): any;
-    }
-    export class StdLogger extends ILogger {
-        write(x: string): void;
-    }
-    export class SilentLogger extends ILogger {
-        constructor(opts: any);
-        write(x: string): void;
     }
 }
 

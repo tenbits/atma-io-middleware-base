@@ -6,14 +6,14 @@ import { io } from './dependencies';
 import { class_Dfr, obj_getProperty } from 'atma-utils';
 
 export default class Compiler {
-	private logger: ILogger
-	private textOnly: boolean
+	public logger: ILogger
+	public textOnly: boolean
 	/** Single temp Configuration: will be passt on each io File read/write calls */
-	private currentConfig: any = null
-	private name: string
+	public currentConfig: any = null
+	public name: string
 
-	process_:  IMiddlewareProcessFn
-	processAsync_: IMiddlewareProcessAsyncFn
+	protected process_:  IMiddlewareProcessFn
+	protected processAsync_: IMiddlewareProcessAsyncFn
 
 	constructor (
 		public middlewareDefinition: IMiddlewareDefinition, 
