@@ -50,19 +50,19 @@ export default class Compiler {
 		this.middlewareDefinition.onMount && this.middlewareDefinition.onMount(io);
 	}
 	
-	compile (file, config): string | IMiddResult | undefined {
+	compile (file, config, method: 'read' | 'write'): string | IMiddResult | undefined {
 		this.currentConfig = config;
-		let result = this.process_(this.getContent_(file), file, this);
+		let result = this.process_(this.getContent_(file), file, this, method);
 		this.applyResult_(file, result);
 		return null;
 	}
-	compileAsync (file, config, done) {
+	compileAsync (file, config, done, method: 'read' | 'write') {
 		this.currentConfig = config;
 
 		let fn = this.processAsync_;
 		if (fn == null) {
 			try {
-				let result = this.compile(file, config);
+				let result = this.compile(file, config, method);
 				this.applyResult_(file, result);
 				done();				
 			}
@@ -75,7 +75,8 @@ export default class Compiler {
 			.processAsync_(
 				this.getContent_(file), 
 				file, 
-				this
+				this,
+				method
 			)
 			.then(result => {
 				this.applyResult_(file, result);

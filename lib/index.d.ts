@@ -26,8 +26,8 @@ declare module 'atma-io-middleware-base/Compiler' {
         setOptions(opts: IOptions): void;
         getOption(property: any): {};
         onMount(io: any): void;
-        compile(file: any, config: any): string | IMiddResult | undefined;
-        compileAsync(file: any, config: any, done: any): void;
+        compile(file: any, config: any, method: 'read' | 'write'): string | IMiddResult | undefined;
+        compileAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;
     }
 }
 
@@ -88,10 +88,10 @@ declare module 'atma-io-middleware-base/IConfig' {
         sourceMap?: string | any;
     }
     export interface IMiddlewareProcessFn {
-        (content: string | any, file?: io.File, compiler?: Compiler): string | IMiddResult | undefined;
+        (content: string | any, file?: io.File, compiler?: Compiler, method?: 'read' | 'write'): string | IMiddResult | undefined;
     }
     export interface IMiddlewareProcessAsyncFn {
-        (content: string | any, file?: io.File, compiler?: Compiler): PromiseLike<string | IMiddResult | undefined>;
+        (content: string | any, file?: io.File, compiler?: Compiler, method?: 'read' | 'write'): PromiseLike<string | IMiddResult | undefined>;
     }
     export interface IMiddlewareDefinition {
         name: string;
@@ -144,8 +144,8 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         compiler: Compiler;
         name: string;
         constructor(middlewareDefintion: IMiddlewareDefinition, options: IOptions, compiler: Compiler);
-        process(file: any, config: any): void;
-        processAsync(file: any, config: any, done: any): void;
+        process(file: any, config: any, method: 'read' | 'write'): void;
+        processAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;
         init(io_: typeof io, extraOptions?: any): void;
         /** Atma-Server */
         attach(app: any): void;
