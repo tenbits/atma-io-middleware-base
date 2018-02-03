@@ -11,6 +11,7 @@ let _currentIo: typeof io = null;
 
 export default class Middleware {
 	name: string
+	utils: any
 
 	constructor(
 		public middlewareDefintion: IMiddlewareDefinition,
@@ -19,10 +20,12 @@ export default class Middleware {
 		let { name } = middlewareDefintion;
 
 		this.options = obj_extendMany({}, middlewareDefintion.defaultOptions, options);
+		this.utils = middlewareDefintion.utils;
 		this.name = name;
 	}
 	process(file, config, method: 'read' | 'write') {
 		this.compiler.compile(file, config, method);
+
 	}
 	processAsync(file, config, done, method: 'read' | 'write') {
 		this.compiler.compileAsync(file, config, done, method);

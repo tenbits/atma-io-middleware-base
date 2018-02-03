@@ -25,7 +25,8 @@ export interface IMiddlewareDefinition {
     process?: IMiddlewareProcessFn
     processAsync?: IMiddlewareProcessAsyncFn
     onMount?: (ioLib: typeof io) => void
-    action?: IAtmaActionDefinition
+    action?: IAtmaActionDefinition,
+    utils?: any
 }
 
 export interface IOptions {

@@ -22,6 +22,7 @@ declare module 'atma-io-middleware-base/Compiler' {
         name: string;
         protected process_: IMiddlewareProcessFn;
         protected processAsync_: IMiddlewareProcessAsyncFn;
+        utils?: any;
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
         setOptions(opts: IOptions): void;
         getOption(property: any): {};
@@ -103,6 +104,7 @@ declare module 'atma-io-middleware-base/IConfig' {
         processAsync?: IMiddlewareProcessAsyncFn;
         onMount?: (ioLib: typeof io) => void;
         action?: IAtmaActionDefinition;
+        utils?: any;
     }
     export interface IOptions {
         logger?: LogOptions;
@@ -143,6 +145,7 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         options: IOptions;
         compiler: Compiler;
         name: string;
+        utils: any;
         constructor(middlewareDefintion: IMiddlewareDefinition, options: IOptions, compiler: Compiler);
         process(file: any, config: any, method: 'read' | 'write'): void;
         processAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;

@@ -15,6 +15,8 @@ export default class Compiler {
 	protected process_:  IMiddlewareProcessFn
 	protected processAsync_: IMiddlewareProcessAsyncFn
 
+	public utils?: any
+
 	constructor (
 		public middlewareDefinition: IMiddlewareDefinition, 
 		public options: IOptions) 
@@ -25,6 +27,7 @@ export default class Compiler {
 		this.processAsync_ = processAsync;
 		
 		this.name = name;
+		this.utils = middlewareDefinition.utils;
 		this.textOnly = textOnly;		
 		this.setOptions(options);
 	}
