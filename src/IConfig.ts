@@ -52,7 +52,7 @@ export interface IAtmaActionDefinition {
         description?: string,
         args?: {
             [key: string]: string
-        }
-        process (config: object, done: Function): any | void
+        }        
     }
+    process (config: object, done: Function): any | void
 }
