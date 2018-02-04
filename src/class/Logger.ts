@@ -48,6 +48,19 @@ export abstract class ILogger {
         };
     }
     abstract write (x: string, level?: 'error' | 'warn' | 'info')
+
+    log (...args: any[]) {
+        let message = args.join(' ');
+        this.write(message, 'info');
+    }
+    warn (...args: any[]) {
+        let message = args.join(' ');
+        this.write(message, 'warn');
+    }
+    error (...args: any[]) {
+        let message = args.join(' ');
+        this.write(message, 'error');
+    }
 };
 
 export class StdLogger extends ILogger {

@@ -14,13 +14,13 @@ export default class Middleware {
 	utils: any
 
 	constructor(
-		public middlewareDefintion: IMiddlewareDefinition,
+		public middlewareDefinition: IMiddlewareDefinition,
 		public options: IOptions,
 		public compiler: Compiler) {
-		let { name } = middlewareDefintion;
+		let { name } = middlewareDefinition;
 
-		this.options = obj_extendMany({}, middlewareDefintion.defaultOptions, options);
-		this.utils = middlewareDefintion.utils;
+		this.options = obj_extendMany({}, middlewareDefinition.defaultOptions, options);
+		this.utils = middlewareDefinition.utils;
 		this.name = name;
 	}
 	process(file, config, method: 'read' | 'write') {
@@ -43,8 +43,8 @@ export default class Middleware {
 
 		registerExtensions(io_.File, extensionsMap, sourceMap);
 
-		if (this.middlewareDefintion.isVirtualHandler) {
-			register(io_, extensionsMap, this.middlewareDefintion);
+		if (this.middlewareDefinition.isVirtualHandler) {
+			register(io_, extensionsMap, this.middlewareDefinition);
 		}
 		this.compiler.onMount(_currentIo);
 	}
@@ -80,8 +80,8 @@ export default class Middleware {
 				registerExtensions(_currentIo.File, extensionsMap, sourceMap);
 			}
 		}
-		if (appcfg.actions && this.middlewareDefintion.action) {
-			appcfg.actions[this.name] = this.middlewareDefintion.action;
+		if (appcfg.actions && this.middlewareDefinition.action) {
+			appcfg.actions[this.name] = this.middlewareDefinition.action;
 		}
 	}
 
@@ -99,7 +99,7 @@ export default class Middleware {
 		this.processAsync(file, config, done, 'write');
 	}
 	setOptions(opts) {
-		this.options = obj_extendMany({}, this.middlewareDefintion.defaultOptions, opts);
+		this.options = obj_extendMany({}, this.middlewareDefinition.defaultOptions, opts);
 		this.compiler.setOptions(this.options);
 	}
 };
