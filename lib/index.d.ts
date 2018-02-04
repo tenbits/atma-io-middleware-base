@@ -45,7 +45,7 @@ declare module 'atma-io-middleware-base/create' {
       *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
       * }
       */
-    export default function create(middlewareDefintion: IMiddlewareDefinition, IO?: typeof io): Middleware;
+    export default function create(middlewareDefinition: IMiddlewareDefinition, IO?: typeof io): Middleware;
 }
 
 declare module 'atma-io-middleware-base/dependencies' {
@@ -70,6 +70,9 @@ declare module 'atma-io-middleware-base/class/Logger' {
         end(): void;
         delegateEnd(onComplete: Function): Function;
         abstract write(x: string, level?: 'error' | 'warn' | 'info'): any;
+        log(...args: any[]): void;
+        warn(...args: any[]): void;
+        error(...args: any[]): void;
     }
     export class StdLogger extends ILogger {
         write(x: string): void;
@@ -141,12 +144,12 @@ declare module 'atma-io-middleware-base/class/Middleware' {
     import { IMiddlewareDefinition, IOptions } from 'atma-io-middleware-base/IConfig';
     import { io } from 'atma-io-middleware-base/dependencies';
     export default class Middleware {
-        middlewareDefintion: IMiddlewareDefinition;
+        middlewareDefinition: IMiddlewareDefinition;
         options: IOptions;
         compiler: Compiler;
         name: string;
         utils: any;
-        constructor(middlewareDefintion: IMiddlewareDefinition, options: IOptions, compiler: Compiler);
+        constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions, compiler: Compiler);
         process(file: any, config: any, method: 'read' | 'write'): void;
         processAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;
         init(io_: typeof io, extraOptions?: any): void;
