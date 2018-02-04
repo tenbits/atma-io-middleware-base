@@ -1,7 +1,0 @@
-{
-    "atma": {
-        "plugins": [
-            "./my-foo-txt-loader.js"
-        ]
-    }
-}
