@@ -32,7 +32,7 @@ export default class Compiler {
 		this.setOptions(options);
 	}
 	setOptions (opts: IOptions) {
-		this.logger = createLogger(this.options.logger || this.middlewareDefinition.defaultOptions.logger);
+		this.logger = createLogger(opts.logger || this.options.logger || this.middlewareDefinition.defaultOptions.logger);
 		this.options = opts;
 		this.currentConfig = null;
 	}
