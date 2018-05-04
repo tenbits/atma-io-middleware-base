@@ -1,7 +1,7 @@
 {
   "name": "atma-io-middleware-base",
   "description": "Atma IO middleware abstraction",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "homepage": "https://github.com/tenbits/atma-io-middleware-base",
   "contributors": [],
   "main": "./lib/index.js",

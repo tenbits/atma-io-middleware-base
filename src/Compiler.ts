@@ -67,10 +67,10 @@ export default class Compiler {
 			try {
 				let result = this.compile(file, config, method);
 				this.applyResult_(file, result);
-				setTimeout(() => done());
+				setImmediate (() => done());
 			}
 			catch (error) {
-				setTimeout(() => done(error));
+				setImmediate (() => done(error));
 			}			
 			return;
 		}
