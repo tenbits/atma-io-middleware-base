@@ -1,7 +1,7 @@
 {
   "name": "atma-io-middleware-base",
   "description": "Atma IO middleware abstraction",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "homepage": "https://github.com/tenbits/atma-io-middleware-base",
   "contributors": [],
   "main": "./lib/index.js",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/node": "^8.0.14",
     "app-bundler": "0.0.33",
-    "atma-loader-ts": "^1.0.0",
+    "atma-loader-ts": "^1.1.5",
     "dts-bundle": "^0.7.3",
     "request": "^2.81.0",
     "tree-kill": "^1.1.0"
@@ -61,10 +61,10 @@
   "atma": {
     "settings": {
       "include": {
-          "amd": true,
-          "extentionDefault": {
-              "js": "ts"
-          }
+        "amd": true,
+        "extentionDefault": {
+          "js": "ts"
+        }
       },
       "atma-loader-ts": {
         "extensions": [
@@ -75,10 +75,10 @@
           "compilerOptions": {
             "sourceMap": false,
             "#if (TEST)": {
-                "module": "AMD"
+              "module": "AMD"
             },
             "#if (!TEST)": {
-                "module": "CommonJS"
+              "module": "CommonJS"
             }
           }
         }

@@ -55,7 +55,7 @@ declare module 'atma-io-middleware-base/dependencies' {
 }
 
 declare module 'atma-io-middleware-base/class/Logger' {
-    export function createLogger(options?: LogOptions): SilentLogger;
+    export function createLogger(options?: LogOptions): SilentLogger | StdLogger;
     export interface LogOptions {
         type: 'silent' | 'file' | 'custom' | 'std';
         interceptStd?: boolean;
