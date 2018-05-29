@@ -79,7 +79,7 @@ export abstract class CacheItem  extends class_Dfr {
         }
         this.outputContent = result;
         this.isCached = true;
-        return io.File.writeAsync(this.path, this.serialize());
+        return io.File.writeAsync(this.path, this.serialize(), { skipHooks: true });
     }
 
     protected serialize () {
@@ -118,7 +118,7 @@ class CacheItemAsync extends CacheItem {
                 return;
             }
 
-            io.File.readAsync(path).then(
+            io.File.readAsync(path, { skipHooks: true }).then(
                 content => {
                    this.onCacheFileLoaded(content);
                 },
@@ -140,7 +140,7 @@ class CacheItemSync extends CacheItem {
             return;
         }
         try {
-            let content = io.File.read(path);        
+            let content = io.File.read(path, { skipHooks: true });
             this.onCacheFileLoaded(content);
         } catch (error) {
             this.onError(error);

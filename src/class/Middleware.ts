@@ -40,23 +40,26 @@ export default class Middleware {
 		}
 	}
 	processAsync(file, config, done, method: 'read' | 'write') {
-		let item = this.cache.getSync(file);
-		if (item != null && item.isCached) {
-			file.content = item.outputContent;
-			done();
+		let item = this.cache.getAsync(file);
+		if (item == null) {
+			this.compiler.compileAsync(file, config, done, method);
 			return;
 		}
-
-		let onComplete = done;
-		if (item != null) {
-			onComplete = function (error) {
-				if (error != null) {
-					item.write(file.content as string);
-				}
-				done(error);
-			};
+		function onCacheItemLoaded () {
+			if (item.isCached) {
+				file.content = item.outputContent;
+				done();
+				return;
+			}
+			this.compiler.compileAsync(file, config, onHookCompleted, method);
 		}
-		this.compiler.compileAsync(file, config, onComplete, method);
+		function onHookCompleted (error) {
+			if (error == null) {
+				item.write(file.content as string);
+			}
+			done(error);
+		}
+		item.then(onCacheItemLoaded, onCacheItemLoaded);
 	}
 	init(io_: typeof io, extraOptions?) {
 		_currentIo = io_;
