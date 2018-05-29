@@ -1,0 +1,67 @@
+import { CacheProvider } from '../src/CacheProvider';
+
+
+UTest({
+    'has no cache' () {
+        
+        let cache = new CacheProvider({} as any, {} as any);
+        let file = new io.File('/test/fixtures/book.txt');            
+        let item = cache.getSync(file);
+        eq_(item, null);
+    },
+    
+    async 'should create cache item' () {
+        let definition = {
+            name: 'testy',
+            cacheable: true,
+            defaultOptions: {
+                foo: false
+            }
+        };
+        let compiler = {
+            getOption: sinon.spy(function (key) {
+                if (key === 'foo') {
+                    return true;
+                }
+            })
+        };
+
+        let cache = new CacheProvider(definition, compiler as any);
+
+        let file = new io.File('/test/fixtures/book.txt');
+        file.read();
+        eq_(file.content, 'dorian');
+
+        /* teardown prev */
+        cache.remove(file);
+
+        '> resolve item (not cached)'
+        let item = cache.getSync(file);
+        eq_(item.isCached, false);
+        eq_(item.isBusy(), false);
+
+        '> should get args'
+        eq_(compiler.getOption.callCount, 1);
+        deepEq_(compiler.getOption.args, [['foo']]);
+
+        '> has proper path'
+        has_(item.path, '/testy/');
+        has_(item.path, '.txt');
+
+        '> cache item'
+        await item.write('rewritten');
+        
+        '> cached file is created'
+        eq_(item.isCached, true);
+        eq_(io.File.exists(item.path), true);
+
+        let cached = io.File.read(item.path);
+        has_(cached, 'rewritten');
+
+
+        '> resolve cached item'
+        let item2 = cache.getSync(file);
+        eq_(item, item2, 'Cached items should be same instances');
+    
+    }
+})

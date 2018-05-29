@@ -15,6 +15,7 @@
 			"atma-io",
 		 	"node"
 		],
+		"lib": ["es6"],
 		"declaration": true,
 		"target":"es5",
 		"module": "commonjs",

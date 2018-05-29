@@ -6,12 +6,14 @@ import { IMiddlewareDefinition, IOptions } from '../IConfig'
 import { obj_extendMany, obj_extend } from 'atma-utils'
 import { io } from '../dependencies'
 import { Utils } from '../ConfigProvider'
+import { CacheProvider, CacheItem } from '../CacheProvider';
 
 let _currentIo: typeof io = null;
 
 export default class Middleware {
 	name: string
 	utils: any
+	cache: CacheProvider
 
 	constructor(
 		public middlewareDefinition: IMiddlewareDefinition,
@@ -22,13 +24,39 @@ export default class Middleware {
 		this.options = obj_extendMany({}, middlewareDefinition.defaultOptions, options);
 		this.utils = middlewareDefinition.utils;
 		this.name = name;
+		this.cache = new CacheProvider(middlewareDefinition, compiler);
 	}
-	process(file, config, method: 'read' | 'write') {
+	process(file: io.File, config: any, method: 'read' | 'write') {
+		let item = this.cache.getSync(file);
+		if (item != null && item.isCached) {
+			file.content = item.outputContent;
+			return;
+		}
+		
 		this.compiler.compile(file, config, method);
 
+		if (item != null) {
+			item.write(file.content as string);
+		}
 	}
 	processAsync(file, config, done, method: 'read' | 'write') {
-		this.compiler.compileAsync(file, config, done, method);
+		let item = this.cache.getSync(file);
+		if (item != null && item.isCached) {
+			file.content = item.outputContent;
+			done();
+			return;
+		}
+
+		let onComplete = done;
+		if (item != null) {
+			onComplete = function (error) {
+				if (error != null) {
+					item.write(file.content as string);
+				}
+				done(error);
+			};
+		}
+		this.compiler.compileAsync(file, config, onComplete, method);
 	}
 	init(io_: typeof io, extraOptions?) {
 		_currentIo = io_;

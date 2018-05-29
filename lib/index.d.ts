@@ -99,6 +99,7 @@ declare module 'atma-io-middleware-base/IConfig' {
     }
     export interface IMiddlewareDefinition {
         name: string;
+        cacheable?: boolean;
         textOnly?: boolean;
         defaultOptions?: IOptions;
         isVirtualHandler?: boolean;
@@ -143,14 +144,16 @@ declare module 'atma-io-middleware-base/class/Middleware' {
     import Compiler from 'atma-io-middleware-base/Compiler';
     import { IMiddlewareDefinition, IOptions } from 'atma-io-middleware-base/IConfig';
     import { io } from 'atma-io-middleware-base/dependencies';
+    import { CacheProvider } from 'atma-io-middleware-base/CacheProvider';
     export default class Middleware {
         middlewareDefinition: IMiddlewareDefinition;
         options: IOptions;
         compiler: Compiler;
         name: string;
         utils: any;
+        cache: CacheProvider;
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions, compiler: Compiler);
-        process(file: any, config: any, method: 'read' | 'write'): void;
+        process(file: io.File, config: any, method: 'read' | 'write'): void;
         processAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;
         init(io_: typeof io, extraOptions?: any): void;
         /** Atma-Server */
@@ -163,6 +166,35 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         write(file: any, config: any): void;
         writeAsync(file: any, config: any, done: any): void;
         setOptions(opts: any): void;
+    }
+}
+
+declare module 'atma-io-middleware-base/CacheProvider' {
+    import { IMiddlewareDefinition } from 'atma-io-middleware-base/IConfig';
+    import Compiler from 'atma-io-middleware-base/Compiler';
+    import { class_Dfr } from 'atma-utils';
+    export class CacheProvider {
+        definition: IMiddlewareDefinition;
+        compiler: Compiler;
+        constructor(definition: IMiddlewareDefinition, compiler: Compiler);
+        remove(file: io.File): void;
+        getSync(file: io.File): CacheItem;
+        getAsync(file: io.File): CacheItem;
+    }
+    export abstract class CacheItem extends class_Dfr {
+        path: string;
+        inputContent: string;
+        isCached: boolean;
+        error: any;
+        inputHash: string;
+        outputContent: string;
+        constructor(path: string, inputContent: string);
+        abstract load(): any;
+        write(result: string): any;
+        protected serialize(): string;
+        protected deserialize(str: string): string[];
+        protected onCacheFileLoaded(content: string): void;
+        protected onError(error: any): void;
     }
 }
 

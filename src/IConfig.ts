@@ -18,6 +18,7 @@ export interface IMiddlewareProcessAsyncFn {
 
 export interface IMiddlewareDefinition {
     name: string
+    cacheable?: boolean
     textOnly?: boolean
     defaultOptions?: IOptions
     isVirtualHandler?: boolean
