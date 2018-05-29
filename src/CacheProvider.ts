@@ -126,6 +126,8 @@ class CacheItemAsync extends CacheItem {
                     this.onError(error);
                 }
             );
+        }, error => {
+            this.onError(error);
         });
     }
 }

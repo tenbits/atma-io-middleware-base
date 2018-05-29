@@ -45,13 +45,15 @@ export default class Middleware {
 			this.compiler.compileAsync(file, config, done, method);
 			return;
 		}
+		let compiler = this.compiler;
+
 		function onCacheItemLoaded () {
 			if (item.isCached) {
 				file.content = item.outputContent;
 				done();
 				return;
 			}
-			this.compiler.compileAsync(file, config, onHookCompleted, method);
+			compiler.compileAsync(file, config, onHookCompleted, method);
 		}
 		function onHookCompleted (error) {
 			if (error == null) {
