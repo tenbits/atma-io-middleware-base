@@ -6,8 +6,8 @@ export default class AtmaServer {
         options = opts;
         extMap && Object.keys(extMap).forEach(ext => {
             if (ext[0] !== '/') {
-                var rgx = `\\.${ext}($|\\?)`;
-                var rgx_map = `\\.${ext}\\.map($|\\?)`;
+                let rgx = `(\\.${ext}($|\\?))`;
+                let rgx_map = `(\\.${ext}\\.map($|\\?))`;
                 app.handlers.registerHandler(rgx, HttpHandler);
                 app.handlers.registerHandler(rgx_map, HttpHandler);
                 return;
