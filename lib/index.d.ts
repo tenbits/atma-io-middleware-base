@@ -154,7 +154,7 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         cache: CacheProvider;
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions, compiler: Compiler);
         process(file: io.File, config: any, method: 'read' | 'write'): void;
-        processAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;
+        processAsync(file: io.File, config: any, done: any, method: 'read' | 'write'): void;
         init(io_: typeof io, extraOptions?: any): void;
         /** Atma-Server */
         attach(app: any): void;
@@ -183,14 +183,13 @@ declare module 'atma-io-middleware-base/CacheProvider' {
     }
     export abstract class CacheItem extends class_Dfr {
         path: string;
-        inputContent: string;
-        isCached: boolean;
         error: any;
         inputHash: string;
         outputContent: string;
-        constructor(path: string, inputContent: string);
+        constructor(path: string);
         abstract load(): any;
-        write(result: string): any;
+        write(currentInput: string, currentOutput: string): any;
+        isValid(content: string): boolean;
         protected serialize(): string;
         protected deserialize(str: string): string[];
         protected onCacheFileLoaded(content: string): void;

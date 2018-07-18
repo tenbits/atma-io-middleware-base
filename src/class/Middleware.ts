@@ -6,7 +6,7 @@ import { IMiddlewareDefinition, IOptions } from '../IConfig'
 import { obj_extendMany, obj_extend } from 'atma-utils'
 import { io } from '../dependencies'
 import { Utils } from '../ConfigProvider'
-import { CacheProvider, CacheItem } from '../CacheProvider';
+import { CacheProvider } from '../CacheProvider';
 
 let _currentIo: typeof io = null;
 
@@ -27,8 +27,9 @@ export default class Middleware {
 		this.cache = new CacheProvider(middlewareDefinition, compiler);
 	}
 	process(file: io.File, config: any, method: 'read' | 'write') {
+		let inputContent = file.content as string;
 		let item = this.cache.getSync(file);
-		if (item != null && item.isCached) {
+		if (item != null && item.isValid(inputContent)) {
 			file.content = item.outputContent;
 			return;
 		}
@@ -36,19 +37,20 @@ export default class Middleware {
 		this.compiler.compile(file, config, method);
 
 		if (item != null) {
-			item.write(file.content as string);
+			item.write(inputContent, file.content as string);
 		}
 	}
-	processAsync(file, config, done, method: 'read' | 'write') {
+	processAsync(file: io.File, config, done, method: 'read' | 'write') {
 		let item = this.cache.getAsync(file);
 		if (item == null) {
 			this.compiler.compileAsync(file, config, done, method);
 			return;
 		}
+		let inputContent = file.content as string;
 		let compiler = this.compiler;
 
 		function onCacheItemLoaded () {
-			if (item.isCached) {
+			if (item.isValid(inputContent)) {
 				file.content = item.outputContent;
 				done();
 				return;
@@ -57,7 +59,7 @@ export default class Middleware {
 		}
 		function onHookCompleted (error) {
 			if (error == null) {
-				item.write(file.content as string);
+				item.write(inputContent, file.content as string);
 			}
 			done(error);
 		}

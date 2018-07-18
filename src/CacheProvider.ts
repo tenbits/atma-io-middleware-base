@@ -1,11 +1,11 @@
 import { io } from './dependencies'
-import { IMiddlewareDefinition, IOptions } from './IConfig'
+import { IMiddlewareDefinition } from './IConfig'
 import Compiler from './Compiler';
 
 import * as os from 'os';
 import * as hash from 'xxhashjs';
 import { class_Dfr } from 'atma-utils';
-import { exists } from 'fs';
+
 
 
 export class CacheProvider {
@@ -28,7 +28,7 @@ export class CacheProvider {
         let path = this.getPath(file, this.definition, this.compiler);
         let item = this.Items[path];
         if (item == null || item.isBusy()) {
-            item = this.Items[path] = new CacheItemSync(path, file.content as string);
+            item = this.Items[path] = new CacheItemSync(path);
         }        
         return item;
     }
@@ -39,7 +39,7 @@ export class CacheProvider {
         let path = this.getPath(file, this.definition, this.compiler);
         let item = this.Items[path];
         if (item == null) {
-            item = this.Items[path] = new CacheItemAsync(path, file.content as string);
+            item = this.Items[path] = new CacheItemAsync(path);
         }        
         return item;
     }
@@ -58,28 +58,35 @@ export class CacheProvider {
 }
 
 export abstract class CacheItem  extends class_Dfr {
-    public isCached = false
     public error = null;
 
     public inputHash: string
     public outputContent: string
 
-    constructor (public path: string, public inputContent: string) {
-        super();
-
-        this.inputHash = Hashable.doHash(inputContent);
+    constructor (public path: string) {
+        super();        
         this.load();            
     }
 
     abstract load ();
 
-    public write (result: string) {
-        if (result == null || typeof result !== 'string' || result === '') {
+    public write (currentInput: string, currentOutput: string) {
+        if (currentOutput == null || typeof currentOutput !== 'string' || currentOutput === '') {
             return;
         }
-        this.outputContent = result;
-        this.isCached = true;
+        this.error = null;
+        this.inputHash = Hashable.doHash(currentInput);
+        this.outputContent = currentOutput;
+        
         return io.File.writeAsync(this.path, this.serialize(), { skipHooks: true });
+    }
+
+    public isValid (content: string): boolean {
+        if (this.error != null) {
+            return false;
+        }
+        const  inputCache = Hashable.doHash(content);
+        return inputCache === this.inputHash;
     }
 
     protected serialize () {
@@ -94,17 +101,15 @@ export abstract class CacheItem  extends class_Dfr {
     }
 
     protected onCacheFileLoaded (content: string) {
-        let [hash, result] = this.deserialize(content);
+        let [inputHash, outputContent] = this.deserialize(content);
         
-        if (this.inputHash === hash) {
-            this.isCached = true;
-            this.outputContent = result;            
-        }
+        this.inputHash = inputHash;
+        this.outputContent = outputContent;
+        this.error = null;
         this.resolve(this);
     }
     protected onError (error) {
         this.error = error;
-        this.isCached = false;
         this.resolve(this);
     }
 }
