@@ -1,81 +1,86 @@
 import { class_Dfr } from 'atma-utils';
 import { io } from './dependencies';
+import Middleware from './class/Middleware';
+import { IOptions } from './IConfig';
 
 export default class AtmaServer {
-    static attach (app, extMap, middleware, opts) {
-        options = opts;
+    static attach (app, extMap, middleware: Middleware, opts: IOptions) {
         extMap && Object.keys(extMap).forEach(ext => {
+            let Handler = createHandler(opts);
             if (ext[0] !== '/') {
                 let rgx = `(\\.${ext}($|\\?))`;
                 let rgx_map = `(\\.${ext}\\.map($|\\?))`;
-                app.handlers.registerHandler(rgx, HttpHandler);
-                app.handlers.registerHandler(rgx_map, HttpHandler);
+                app.handlers.registerHandler(rgx, Handler);
+                app.handlers.registerHandler(rgx_map, Handler);
                 return;
             }
-            app.handlers.registerHandler(ext, HttpHandler);
-        })
+            app.handlers.registerHandler(ext, Handler);
+        });
     }
 }
 
-let options = null;
+function createHandler (options) {
 
-class HttpHandler extends class_Dfr {
-
-    process (req, res, config) {
-        var handler = this,
-            url = req.url,
-            q = req.url.indexOf('?');
-        if (q !== -1) {
-            url = url.substring(0, q);
-        }
-        var isSourceMap = url.substr(-4) === '.map';
-        if (isSourceMap)  {
-            url = url.substring(0, url.length - 4);
-        }
-        if (url[0] === '/') {
-            url = url.substring(1);
-        }
-        if (config.base) {
-            options.base = config.base;
-        }
-        
-        try_createFileInstance_viaStatic(config, url, onSuccess, try_Static);
-        
-        function try_Static(){
-            try_createFileInstance_byConfig(config, 'static', url, onSuccess, try_Base);
-        }
-        function try_Base() {
-            try_createFileInstance_byConfig(config, 'base', url, onSuccess, try_Cwd);
-        }
-        function try_Cwd() {
-            try_createFileInstance(process.cwd(), url, onSuccess, onFailure);
-        }
-        function onFailure(){
-            (handler as any).reject('Not Found - ' + url, 404, 'text/plain');
-        }
-        function onSuccess(file){
-            var fn = file.readAsync;
-            if (isSourceMap && file.readSourceMapAsync) 
-                fn = file.readSourceMapAsync;
+    return class HttpHandler extends class_Dfr {
+        process (req, res, config) {
+            var handler = this,
+                url = req.url,
+                q = req.url.indexOf('?');
+            if (q !== -1) {
+                url = url.substring(0, q);
+            }
+            var isSourceMap = url.substr(-4) === '.map';
+            if (isSourceMap)  {
+                url = url.substring(0, url.length - 4);
+            }
+            if (url[0] === '/') {
+                url = url.substring(1);
+            }
+            if (config.base) {
+                options.base = config.base;
+            }
             
-            fn
-                .call(file)
-                .fail(handler.rejectDelegate())
-                .done(function(){
-                    var source = isSourceMap
-                        ? file.sourceMap
-                        : file.content;
-                        
-                    var mimeType = isSourceMap
-                        ? 'application/json'
-                        : (file.mimeType || options.mimeType)
-                        ;
-                        
-                    (handler as any).resolve(source, 200, mimeType);
-                })
+            try_createFileInstance_viaStatic(config, url, onSuccess, try_Static);
+            
+            function try_Static(){
+                try_createFileInstance_byConfig(config, 'static', url, onSuccess, try_Base);
+            }
+            function try_Base() {
+                try_createFileInstance_byConfig(config, 'base', url, onSuccess, try_Cwd);
+            }
+            function try_Cwd() {
+                try_createFileInstance(process.cwd(), url, onSuccess, onFailure);
+            }
+            function onFailure(){
+                (handler as any).reject('Not Found - ' + url, 404, 'text/plain');
+            }
+            function onSuccess(file){
+                var fn = file.readAsync;
+                if (isSourceMap && file.readSourceMapAsync) 
+                    fn = file.readSourceMapAsync;
+                
+                fn
+                    .call(file)
+                    .fail(handler.rejectDelegate())
+                    .done(function(){
+                        var source = isSourceMap
+                            ? file.sourceMap
+                            : file.content;
+                            
+                        var mimeType = isSourceMap
+                            ? 'application/json'
+                            : (file.mimeType || options.mimeType)
+                            ;
+                            
+                        (handler as any).resolve(source, 200, mimeType);
+                    })
+            }
         }
-    }
+    }    
 }
+
+
+
 
 function try_createFileInstance(base, url, onSuccess, onFailure) {
     var path = io.Uri.combine(base, url);
