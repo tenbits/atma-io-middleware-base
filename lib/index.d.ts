@@ -156,6 +156,7 @@ declare module 'atma-io-middleware-base/class/Middleware' {
         process(file: io.File, config: any, method: 'read' | 'write'): void;
         processAsync(file: io.File, config: any, done: any, method: 'read' | 'write'): void;
         init(io_: typeof io, extraOptions?: any): void;
+        clearTemp(): void;
         /** Atma-Server */
         attach(app: any): void;
         /** Atma.Plugin */
@@ -180,6 +181,7 @@ declare module 'atma-io-middleware-base/CacheProvider' {
         remove(file: io.File): void;
         getSync(file: io.File): CacheItem;
         getAsync(file: io.File): CacheItem;
+        clearTemp(): void;
     }
     export abstract class CacheItem extends class_Dfr {
         path: string;
