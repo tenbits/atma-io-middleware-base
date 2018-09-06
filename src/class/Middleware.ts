@@ -82,6 +82,11 @@ export default class Middleware {
 			register(io_, extensionsMap, this.middlewareDefinition);
 		}
 		this.compiler.onMount(_currentIo);
+		this.cache.clearTemp();
+	}
+
+	clearTemp () {
+		this.cache.clearTemp();
 	}
 
 

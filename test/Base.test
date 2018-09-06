@@ -1,4 +1,4 @@
-import { } from '../src/Compiler';
+import {} from '../src/Compiler';
 let io = require('atma-io');
 
 UTest({

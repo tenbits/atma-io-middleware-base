@@ -1,7 +1,8 @@
-import { class_Dfr } from 'atma-utils';
-import { io } from './dependencies';
-import Middleware from './class/Middleware';
-import { IOptions } from './IConfig';
+import { class_Dfr } from 'atma-utils'
+import { io } from './dependencies'
+import Middleware from './class/Middleware'
+import { IOptions } from './IConfig'
+import { path_combine } from './utils/path'
 
 export default class AtmaServer {
     static attach (app, extMap, middleware: Middleware, opts: IOptions) {
@@ -83,7 +84,7 @@ function createHandler (options) {
 
 
 function try_createFileInstance(base, url, onSuccess, onFailure) {
-    var path = io.Uri.combine(base, url);
+    var path = path_combine(base, url);
     io  .File
         .existsAsync(path)
         .then(function(exists){

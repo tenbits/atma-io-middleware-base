@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/node": "^8.0.14",
     "app-bundler": "0.0.33",
-    "atma-loader-ts": "^1.1.5",
+    "atma-loader-ts": "^1.1.9",
     "dts-bundle": "^0.7.3",
     "request": "^2.81.0",
     "tree-kill": "^1.1.0"

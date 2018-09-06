@@ -44,6 +44,10 @@ export class CacheProvider {
         return item;
     }
 
+    clearTemp () {
+        Hashable.clearHashes();
+    }
+
     private getPath (file: io.File, definition: IMiddlewareDefinition, compiler: Compiler): string {
         let tmp = this.TMP;
         let filenameHash = Hashable.fromFilename(file);
@@ -179,13 +183,16 @@ namespace Hashable {
         return hash.h32(str, 0xA84800A8).toString(16);
     }
 
+    export function clearHashes () {
+        compilerOptsHashes.clear();
+    }
+
     function calcOptsHash (definition: IMiddlewareDefinition, compiler: Compiler) {
         let opts = definition.defaultOptions;
         if (opts == null) {
             return 'default';
-        }
-        
-        var str = '';
+        }        
+        let str = '';
         for (let key in opts) {
             let val = compiler.getOption(key);
             str += `${key}:${stringify(val)}`;
