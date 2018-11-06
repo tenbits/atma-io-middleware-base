@@ -23,6 +23,7 @@ declare module 'atma-io-middleware-base/Compiler' {
         protected process_: IMiddlewareProcessFn;
         protected processAsync_: IMiddlewareProcessAsyncFn;
         utils?: any;
+        io: any;
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
         setOptions(opts: IOptions): void;
         getOption(property: any): {};

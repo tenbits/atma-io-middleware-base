@@ -15,7 +15,8 @@ export default class Compiler {
 	protected process_:  IMiddlewareProcessFn
 	protected processAsync_: IMiddlewareProcessAsyncFn
 
-	public utils?: any
+    public utils?: any
+    public io = io;
 
 	constructor (
 		public middlewareDefinition: IMiddlewareDefinition, 
@@ -50,6 +51,7 @@ export default class Compiler {
 		return obj_getProperty(this.options, property);
 	}
 	onMount (io) {
+        this.io = io;
 		this.middlewareDefinition.onMount && this.middlewareDefinition.onMount(io);
 	}
 	
