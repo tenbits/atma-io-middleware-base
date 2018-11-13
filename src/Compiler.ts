@@ -1,10 +1,9 @@
-/// <reference path="../node_modules/atma-io/types/global.d.ts" />
-
 import { createLogger, ILogger } from './class/Logger';
 import { IMiddlewareDefinition, IOptions, IMiddResult, IMiddlewareProcessAsyncFn, IMiddlewareProcessFn } from './IConfig'
 import { io } from './dependencies';
-import { class_Dfr, obj_getProperty } from 'atma-utils';
+import { obj_getProperty } from 'atma-utils';
 
+declare type File = InstanceType<typeof io.File>
 export default class Compiler {
 	public logger: ILogger
 	public textOnly: boolean
@@ -30,7 +29,7 @@ export default class Compiler {
 		this.name = name;
 		this.utils = middlewareDefinition.utils;
 		this.textOnly = textOnly;		
-		this.setOptions(options);
+        this.setOptions(options);        
 	}
 	setOptions (opts: IOptions) {
 		this.logger = createLogger(opts.logger || this.options.logger || this.middlewareDefinition.defaultOptions.logger);
@@ -89,7 +88,7 @@ export default class Compiler {
 			}, error => done(error));		
 	}
 
-	private applyResult_ (file: io.File, result: string | IMiddResult | undefined) {
+	private applyResult_ (file: File, result: string | IMiddResult | undefined) {
 		if (result == null) {
 			return;
 		}
@@ -101,7 +100,7 @@ export default class Compiler {
 		file.content = result.content;
 	}
 
-	private getContent_ (file: io.File) : string | any{
+	private getContent_ (file: File) : string | any{
 		var content = file.content;
 		if (typeof content === 'string') {
 			return content;

@@ -8,6 +8,8 @@ import { io } from '../dependencies'
 import { Utils } from '../ConfigProvider'
 import { CacheProvider } from '../CacheProvider';
 
+declare type File = InstanceType<typeof io.File>
+
 let _currentIo: typeof io = null;
 
 export default class Middleware {
@@ -26,7 +28,7 @@ export default class Middleware {
 		this.name = name;
 		this.cache = new CacheProvider(middlewareDefinition, compiler);
 	}
-	process(file: io.File, config: any, method: 'read' | 'write') {
+	process(file: File, config: any, method: 'read' | 'write') {
 		let inputContent = file.content as string;
 		let item = this.cache.getSync(file);
 		if (item != null && item.isValid(inputContent)) {
@@ -40,7 +42,7 @@ export default class Middleware {
 			item.write(inputContent, file.content as string);
 		}
 	}
-	processAsync(file: io.File, config, done, method: 'read' | 'write') {
+	processAsync(file: File, config, done, method: 'read' | 'write') {
 		let item = this.cache.getAsync(file);
 		if (item == null) {
 			this.compiler.compileAsync(file, config, done, method);

@@ -7,6 +7,7 @@ import * as hash from 'xxhashjs';
 import { class_Dfr } from 'atma-utils';
 
 
+declare type File = InstanceType<typeof io.File>
 
 export class CacheProvider {
 
@@ -16,12 +17,12 @@ export class CacheProvider {
     constructor (public definition: IMiddlewareDefinition, public compiler: Compiler) {
 
     }
-    remove (file: io.File) {
+    remove (file: File) {
         let path = this.getPath(file, this.definition, this.compiler);
         io.File.remove(path);
     }
 
-    getSync (file: io.File): CacheItem {
+    getSync (file: File): CacheItem {
         if (this.definition.cacheable !== true) {
             return null;
         }
@@ -32,7 +33,7 @@ export class CacheProvider {
         }        
         return item;
     }
-    getAsync (file: io.File): CacheItem {
+    getAsync (file: File): CacheItem {
         if (this.definition.cacheable !== true) {
             return null;
         }
@@ -48,7 +49,7 @@ export class CacheProvider {
         Hashable.clearHashes();
     }
 
-    private getPath (file: io.File, definition: IMiddlewareDefinition, compiler: Compiler): string {
+    private getPath (file: File, definition: IMiddlewareDefinition, compiler: Compiler): string {
         let tmp = this.TMP;
         let filenameHash = Hashable.fromFilename(file);
         let optionsHash = Hashable.fromOptions(definition, compiler);
@@ -129,7 +130,7 @@ class CacheItemAsync extends CacheItem {
 
             io.File.readAsync(path, { skipHooks: true }).then(
                 content => {
-                   this.onCacheFileLoaded(content);
+                   this.onCacheFileLoaded(content.toString());
                 },
                 error => {
                     this.onError(error);
@@ -152,7 +153,7 @@ class CacheItemSync extends CacheItem {
         }
         try {
             let content = io.File.read(path, { skipHooks: true });
-            this.onCacheFileLoaded(content);
+            this.onCacheFileLoaded(content.toString());
         } catch (error) {
             this.onError(error);
         };
@@ -162,7 +163,7 @@ class CacheItemSync extends CacheItem {
 
 namespace Hashable {
 
-    export function fromFilename (file: io.File) {
+    export function fromFilename (file: File) {
         let path = file.uri.toLocalFile();
 
         return path.replace(/[^\w\d]/g, '_');
@@ -208,7 +209,7 @@ namespace Hashable {
             case 'string':
             case 'number':
             case 'boolean':
-                return value;
+                return value as string;
         }
         if (Array.isArray(value)) {
             return value.map(x => stringify(x)).join(',');

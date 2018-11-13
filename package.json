@@ -1,7 +1,7 @@
 {
   "name": "atma-io-middleware-base",
   "description": "Atma IO middleware abstraction",
-  "version": "1.0.35",
+  "version": "1.0.37",
   "homepage": "https://github.com/tenbits/atma-io-middleware-base",
   "contributors": [],
   "main": "./lib/index.js",
@@ -95,6 +95,6 @@
     "xxhashjs": "^0.2.2"
   },
   "peerDependencies": {
-    "atma-io": ">=0.2.35"
+    "atma-io": ">=1.1.7"
   }
 }

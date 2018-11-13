@@ -1,7 +1,10 @@
 import * as utils from 'atma-utils'
+import * as io from 'atma-io';
 
-const globalIo = (<any>global).io;
-const io = globalIo && globalIo.File ? globalIo : require('atma-io');
+let globalIo: typeof io = (<any>global).io;
+if (globalIo == null || globalIo.File == null) {
+    globalIo = io;
+}
 
-export { io, utils }
+export { globalIo as io, utils }
 

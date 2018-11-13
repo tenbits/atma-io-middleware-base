@@ -17,7 +17,7 @@ class VirtualFile extends io.File {
         return true;
     }
     existsAsync () {
-        return class_Dfr.resolve(true) as PromiseLike<boolean>;
+        return class_Dfr.resolve(true) as any;
     }
 	read (opts) {
         this.content = '';
@@ -37,13 +37,13 @@ class VirtualFile extends io.File {
             }
             dfr.resolve(this.content);
         });
-        return dfr as PromiseLike<string>;
+        return dfr as any;
 	}
     write (content, opts): this {
         throw new Error ('Middleware implements no write-logic'); 
     }
-    writeAsync (content, opts): PromiseLike<any> {
-        throw new Error ('Middleware implements no write-logic');
+    writeAsync (content, opts): any {
+        throw new Error ('Middleware implements no write-logic');        
     }
     copyTo (path): this {
         this.read(null);

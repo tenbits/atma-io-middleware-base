@@ -1,5 +1,6 @@
 import { io } from '../dependencies';
 import { class_Dfr } from 'atma-utils';
+import { IDeferred } from 'atma-io/IDeferred';
 
 export default class SourceMapFile extends io.File {
 	read (opts) {
@@ -15,7 +16,7 @@ export default class SourceMapFile extends io.File {
 		return (this.content = file.sourceMap);
 	}
 	
-	readAsync (opts){
+	readAsync (opts): IDeferred<string | Buffer>{
 		if (this.exists('mapOnly')) 
 			return super.readAsync(opts)
 		
@@ -25,14 +26,14 @@ export default class SourceMapFile extends io.File {
 				code: 404, 
 				filename: this.uri.toLocalFile(), 
 				message: 'Path equals original'
-			}) as PromiseLike<any>
+			}) as any;
 		}
 		
 		let file = new io.File(path);
 		let prom = file.readAsync(opts);
 		return prom.then(() => {
 			return (this.content = file.sourceMap);
-		});
+		}) as any;
 	}
 	exists (check?) {
 		if (super.exists()) 
