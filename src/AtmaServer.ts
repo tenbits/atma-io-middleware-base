@@ -41,8 +41,11 @@ function createHandler (options) {
                 options.base = config.base;
             }
             
-            try_createFileInstance_viaStatic(config, url, onSuccess, try_Static);
+            try_createFileInstance_viaStatic(config, url, onSuccess, try_Options);
             
+            function try_Options(){
+                try_createFileInstance_byOptions(options, 'static', url, onSuccess, try_Static);
+            }
             function try_Static(){
                 try_createFileInstance_byConfig(config, 'static', url, onSuccess, try_Base);
             }
@@ -83,17 +86,57 @@ function createHandler (options) {
 
 
 
-function try_createFileInstance(base, url, onSuccess, onFailure) {
-    var path = path_combine(base, url);
-    io  .File
-        .existsAsync(path)
-        .then(function(exists){
-            if (exists) 
-                return onSuccess(new io.File(path));
-            
-            onFailure();
-        }, onFailure);
+async function try_createFileInstance(baseMix: string | string[], url, onSuccess, onFailure) {
+    async function checkSingle (base) {
+        return new Promise((resolve) => {
+            const path = path_combine(base, url);
+            io.File
+                .existsAsync(path)
+                .then(function(exists){
+                    if (exists) {
+                        return resolve(new io.File(path));
+                    }
+                    resolve(null);
+                }, () => resolve(null));            
+        });
+    }
+    async function checkOuter (str: string) {
+        let file = await checkSingle(str);
+        if (file) {
+            onSuccess(file);
+            return true;
+        }
+        return false;
+    }
+    if (baseMix == null) {
+        onFailure();
+        return;
+    }
+
+    if (Array.isArray(baseMix)) {
+        for (let base of baseMix) {
+            let handled = await checkOuter(base)
+            if (handled) {
+                return;
+            }
+        }
+        onFailure();
+        return;
+    }
+    let handled = await checkOuter(baseMix);
+    if (handled === false) {
+        onFailure();
+    }
 };
+
+function try_createFileInstance_byOptions(options, property, url, onSuccess, onFailure){
+    var base = options && options[property];
+    if (base == null) {
+        onFailure();
+        return;
+    }
+    try_createFileInstance(base, url, onSuccess, onFailure);
+}
 function try_createFileInstance_byConfig(config, property, url, onSuccess, onFailure){
     var base = config && config[property];
     if (base == null) {
