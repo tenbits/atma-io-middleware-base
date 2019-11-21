@@ -195,12 +195,13 @@ declare module 'atma-io-middleware-base/CacheProvider' {
         error: any;
         inputHash: string;
         outputContent: string;
+        sourceMap: string;
         constructor(path: string);
         abstract load(): any;
-        write(currentInput: string, currentOutput: string): 'atma-io/IDeferred'.IDeferred<'atma-io/File'.File>;
+        write(currentInput: string, currentOutput: string, sourceMap: string): 'atma-io/IDeferred'.IDeferred<'atma-io/File'.File>;
         isValid(content: string): boolean;
         protected serialize(): string;
-        protected deserialize(str: string): string[];
+        protected deserialize(str: string): any[];
         protected onCacheFileLoaded(content: string): void;
         protected onError(error: any): void;
     }

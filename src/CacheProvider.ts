@@ -62,26 +62,30 @@ export class CacheProvider {
     }
 }
 
+const SOURCE_MAP_SEP = `\n// atma-io-middleware-base sourcemap\n`;
+
 export abstract class CacheItem  extends class_Dfr {
     public error = null;
 
     public inputHash: string
     public outputContent: string
+    public sourceMap: string
 
     constructor (public path: string) {
-        super();        
-        this.load();            
+        super();
+        this.load();
     }
 
     abstract load ();
 
-    public write (currentInput: string, currentOutput: string) {
+    public write (currentInput: string, currentOutput: string, sourceMap: string) {
         if (currentOutput == null || typeof currentOutput !== 'string' || currentOutput === '') {
             return;
         }
         this.error = null;
         this.inputHash = Hashable.doHash(currentInput);
         this.outputContent = currentOutput;
+        this.sourceMap = sourceMap;
         
         return io.File.writeAsync(this.path, this.serialize(), { skipHooks: true });
     }
@@ -95,21 +99,36 @@ export abstract class CacheItem  extends class_Dfr {
     }
 
     protected serialize () {
-        return `${this.inputHash}\n${this.outputContent}`;
+        let str = `${this.inputHash}\n${this.outputContent}`;
+        if (this.sourceMap) {
+            let sourceMap = this.sourceMap;
+            if (typeof sourceMap !== 'string') {
+                sourceMap = JSON.stringify(this.sourceMap);
+            }
+            str += `${SOURCE_MAP_SEP}${sourceMap}`;
+        }
+        return str;
     }
     protected deserialize (str: string) {
         let i = str.indexOf('\n');
-        return [
-            str.substring(0, i), 
-            str.substring(i + 1)
-        ];
+        let inputHash = str.substring(0, i);
+        let content = str.substring(i + 1);
+        let sourceMap = null;
+        i = content.indexOf(SOURCE_MAP_SEP);
+        if (i !== -1) {
+            sourceMap = content.substring(i + SOURCE_MAP_SEP.length);
+            content = content.substring(0, i);
+        }
+
+        return [ inputHash, content, sourceMap ]
     }
 
     protected onCacheFileLoaded (content: string) {
-        let [inputHash, outputContent] = this.deserialize(content);
+        let [inputHash, outputContent, sourceMap] = this.deserialize(content);
         
         this.inputHash = inputHash;
         this.outputContent = outputContent;
+        this.sourceMap = sourceMap;
         this.error = null;
         this.resolve(this);
     }
