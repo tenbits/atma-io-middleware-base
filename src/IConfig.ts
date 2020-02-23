@@ -33,6 +33,7 @@ export interface IMiddlewareDefinition {
 export interface IOptions {
     logger?: LogOptions,
     mimeType?: string
+    handlerPath?: string
     extensions?: string[] | {[ext: string]: string}
     sourceMap?: boolean
     [key: string]: any
