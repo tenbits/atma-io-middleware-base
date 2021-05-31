@@ -43,10 +43,10 @@ declare module 'atma-io-middleware-base/create' {
     import Middleware from 'atma-io-middleware-base/class/Middleware';
     /**
       * @middlewareDefintion {
-      * 	name: string
+      *     name: string
       *  process (content, path, options, ctx: { file, method })
       *  processAsync (content, path, options, ctx: { file, method }, done)
-      * 	defaultOptions: {}
+      *     defaultOptions: {}
       *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
       * }
       */

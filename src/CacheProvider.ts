@@ -30,7 +30,7 @@ export class CacheProvider {
         let item = this.Items[path];
         if (item == null || item.isBusy()) {
             item = this.Items[path] = new CacheItemSync(path);
-        }        
+        }
         return item;
     }
     getAsync (file: File): CacheItem {
@@ -41,7 +41,7 @@ export class CacheProvider {
         let item = this.Items[path];
         if (item == null) {
             item = this.Items[path] = new CacheItemAsync(path);
-        }        
+        }
         return item;
     }
 
@@ -86,7 +86,7 @@ export abstract class CacheItem  extends class_Dfr {
         this.inputHash = Hashable.doHash(currentInput);
         this.outputContent = currentOutput;
         this.sourceMap = sourceMap;
-        
+
         return io.File.writeAsync(this.path, this.serialize(), { skipHooks: true });
     }
 
@@ -125,7 +125,7 @@ export abstract class CacheItem  extends class_Dfr {
 
     protected onCacheFileLoaded (content: string) {
         let [inputHash, outputContent, sourceMap] = this.deserialize(content);
-        
+
         this.inputHash = inputHash;
         this.outputContent = outputContent;
         this.sourceMap = sourceMap;
@@ -194,7 +194,7 @@ namespace Hashable {
         if (compilerOptsHashes.has(compiler)) {
             return compilerOptsHashes.get(compiler);
         }
-        let hash = calcOptsHash(definition, compiler);        
+        let hash = calcOptsHash(definition, compiler);
         compilerOptsHashes.set(compiler, hash);
         return hash;
     }
@@ -211,7 +211,7 @@ namespace Hashable {
         let opts = definition.defaultOptions;
         if (opts == null) {
             return 'default';
-        }        
+        }
         let str = '';
         for (let key in opts) {
             let val = compiler.getOption(key);
@@ -233,7 +233,7 @@ namespace Hashable {
         if (Array.isArray(value)) {
             return value.map(x => stringify(x)).join(',');
         }
-        if (value.toString !== Object.prototype.toString) {
+        if (value.toString != null && value.toString !== Object.prototype.toString) {
             return value.toString();
         }
 
