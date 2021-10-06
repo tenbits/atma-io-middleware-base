@@ -29,6 +29,7 @@ declare module 'atma-io-middleware-base/Compiler' {
         utils?: any;
         io: import("atma-io/IIo").Io;
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
+        setConfig(config: any): this;
         setOptions(opts: IOptions): void;
         getOption(property: any): unknown;
         onMount(io: any): void;

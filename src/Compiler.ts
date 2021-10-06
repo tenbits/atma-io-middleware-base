@@ -5,6 +5,7 @@ import { obj_getProperty, class_Uri } from 'atma-utils';
 
 declare type File = InstanceType<typeof io.File>
 export default class Compiler {
+
     public logger: ILogger
     public textOnly: boolean
     /** Single temp Configuration: will be passt on each io File read/write calls */
@@ -38,6 +39,10 @@ export default class Compiler {
         this.utils = middlewareDefinition.utils;
         this.textOnly = textOnly;
         this.setOptions(options);
+    }
+    setConfig(config: any): this {
+        this.currentConfig = config;
+        return this;
     }
     setOptions(opts: IOptions) {
         this.logger = createLogger(opts.logger || this.options.logger || this.middlewareDefinition.defaultOptions.logger);

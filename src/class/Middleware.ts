@@ -44,6 +44,8 @@ export default class Middleware {
         }
     }
     processAsync(file: File, config, done, method: 'read' | 'write') {
+        this.compiler.setConfig(config);
+
         let item = this.cache.getAsync(file);
         if (item == null) {
             this.compiler.compileAsync(file, config, done, method);
@@ -149,9 +151,9 @@ export default class Middleware {
 };
 
 /**
- * Prepair Extensions Map Object for the io.File.registerExtensions 
+ * Prepair Extensions Map Object for the io.File.registerExtensions
  * @param {Array|Object} mix
- * @return {Object} Example: { fooExt: ['current-midd-name:read'] } 
+ * @return {Object} Example: { fooExt: ['current-midd-name:read'] }
  */
 function normalizeExtensions(mix, name) {
     let map = {};
