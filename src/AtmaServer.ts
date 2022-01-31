@@ -24,13 +24,13 @@ function createHandler (options) {
 
     return class HttpHandler extends class_Dfr {
         process (req, res, config) {
-            var handler = this,
+            let handler = this,
                 url = req.url,
                 q = req.url.indexOf('?');
             if (q !== -1) {
                 url = url.substring(0, q);
             }
-            var isSourceMap = url.substr(-4) === '.map';
+            let isSourceMap = url.substr(-4) === '.map';
             if (isSourceMap)  {
                 url = url.substring(0, url.length - 4);
             }
@@ -40,9 +40,9 @@ function createHandler (options) {
             if (config.base) {
                 options.base = config.base;
             }
-            
+
             try_createFileInstance_viaStatic(config, url, onSuccess, try_Options);
-            
+
             function try_Options(){
                 try_createFileInstance_byOptions(options, 'static', url, onSuccess, try_Static);
             }
@@ -59,28 +59,30 @@ function createHandler (options) {
                 (handler as any).reject('Not Found - ' + url, 404, 'text/plain');
             }
             function onSuccess(file){
-                var fn = file.readAsync;
-                if (isSourceMap && file.readSourceMapAsync) 
+                let fn = file.readAsync;
+                if (isSourceMap && file.readSourceMapAsync) {
                     fn = file.readSourceMapAsync;
-                
+                }
+
                 fn
                     .call(file)
-                    .fail(handler.rejectDelegate())
-                    .done(function(){
-                        var source = isSourceMap
+                    .then(() => {
+                        let source = isSourceMap
                             ? file.sourceMap
                             : file.content;
-                            
-                        var mimeType = isSourceMap
+
+                        let mimeType = isSourceMap
                             ? 'application/json'
                             : (file.mimeType || options.mimeType)
                             ;
-                            
-                        (handler as any).resolve(source, 200, mimeType);
-                    })
+
+                        handler.resolve(source, 200, mimeType);
+                    }, (err) => {
+                        handler.reject(err);
+                    });
             }
         }
-    }    
+    }
 }
 
 
@@ -97,7 +99,7 @@ async function try_createFileInstance(baseMix: string | string[], url, onSuccess
                         return resolve(new io.File(path));
                     }
                     resolve(null);
-                }, () => resolve(null));            
+                }, () => resolve(null));
         });
     }
     async function checkOuter (str: string) {
@@ -130,7 +132,7 @@ async function try_createFileInstance(baseMix: string | string[], url, onSuccess
 };
 
 function try_createFileInstance_byOptions(options, property, url, onSuccess, onFailure){
-    var base = options && options[property];
+    let base = options && options[property];
     if (base == null) {
         onFailure();
         return;
@@ -138,7 +140,7 @@ function try_createFileInstance_byOptions(options, property, url, onSuccess, onF
     try_createFileInstance(base, url, onSuccess, onFailure);
 }
 function try_createFileInstance_byConfig(config, property, url, onSuccess, onFailure){
-    var base = config && config[property];
+    let base = config && config[property];
     if (base == null) {
         onFailure();
         return;
@@ -147,7 +149,7 @@ function try_createFileInstance_byConfig(config, property, url, onSuccess, onFai
 }
 function try_createFileInstance_viaStatic(config, url, onSuccess, onFailure){
     if (_resolveStaticPath === void 0) {
-        var x;
+        let x;
         _resolveStaticPath = (x = (global as any).atma)
             && (x = x.server)
             && (x = x.StaticContent)
@@ -159,11 +161,11 @@ function try_createFileInstance_viaStatic(config, url, onSuccess, onFailure){
         onFailure();
         return;
     }
-    var file = new io.File(_resolveStaticPath(url, config));
+    let file = new io.File(_resolveStaticPath(url, config));
     if (file.exists() === false) {
         onFailure();
         return;
     }
     onSuccess(file);
 }
-var _resolveStaticPath;
+let _resolveStaticPath;
