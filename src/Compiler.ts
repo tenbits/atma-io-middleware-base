@@ -55,7 +55,7 @@ export default class Compiler {
                 || obj_getProperty(this.currentConfig, `${this.name}`)
                 || this.currentConfig;
 
-            var x = obj_getProperty(options, property);
+            let x = obj_getProperty(options, property);
             if (x != null) {
                 return x;
             }
@@ -121,15 +121,18 @@ export default class Compiler {
     }
 
     private getContent_(file: File): string | any {
-        var content = file.content;
+        let content = file.content;
+        if (content == null) {
+            return null;
+        }
         if (typeof content === 'string') {
             return content;
         }
         if (this.textOnly !== true) {
             return content;
         }
-        if (content.toString === Object.prototype.toString) {
-            return null;
+        if (content.toString == null || content.toString === Object.prototype.toString) {
+            return content;
         }
         return content.toString();
     }
