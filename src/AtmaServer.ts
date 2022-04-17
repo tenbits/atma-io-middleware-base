@@ -3,6 +3,7 @@ import { io } from './dependencies'
 import Middleware from './class/Middleware'
 import { IOptions } from './IConfig'
 import { path_combine } from './utils/path'
+import { IncomingMessage, ServerResponse } from 'http'
 
 export default class AtmaServer {
     static attach (app, extMap, middleware: Middleware, opts: IOptions) {
@@ -23,10 +24,10 @@ export default class AtmaServer {
 function createHandler (options) {
 
     return class HttpHandler extends class_Dfr {
-        process (req, res, config) {
-            let handler = this,
-                url = req.url,
-                q = req.url.indexOf('?');
+        process (req: IncomingMessage, res: ServerResponse, config) {
+            let handler = this;
+            let url = req.url;
+            let q = req.url.indexOf('?');
             if (q !== -1) {
                 url = url.substring(0, q);
             }

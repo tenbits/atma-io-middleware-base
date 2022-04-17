@@ -30,9 +30,9 @@ class PackageLoader {
 }
 
 class GlobalLoader {
-    static load (name) {
-        let _ = global as any;
-        let cfg = _.app && _.app.config || _.config;
+    static load (name: string) {
+        let $global = global as any;
+        let cfg = $global.app?.config ?? $global.config;
         return Utils.readOptions(cfg, name);
     }
 }
