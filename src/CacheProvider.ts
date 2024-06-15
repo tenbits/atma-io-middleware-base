@@ -191,7 +191,7 @@ namespace Hashable {
     const compilerOptsHashes = new Map;
 
     export function fromOptions (definition: IMiddlewareDefinition, compiler: Compiler) {
-        if (compilerOptsHashes.has(compiler)) {
+        if (compilerOptsHashes.has(compiler) && compiler.currentConfig == null) {
             return compilerOptsHashes.get(compiler);
         }
         let hash = calcOptsHash(definition, compiler);

@@ -64,7 +64,7 @@ export default class Compiler {
     }
     onMount(io) {
         this.io = io;
-        this.middlewareDefinition.onMount && this.middlewareDefinition.onMount(io);
+        this.middlewareDefinition.onMount?.(io);
     }
 
     compile(file, config, method: 'read' | 'write'): string | IMiddResult | undefined {
