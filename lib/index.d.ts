@@ -211,6 +211,12 @@ declare module 'atma-io-middleware-base/CacheProvider' {
         protected onCacheFileLoaded(content: string): void;
         protected onError(error: any): void;
     }
+    export namespace Hashable {
+        function fromFilename(file: File): string;
+        function fromOptions(definition: IMiddlewareDefinition, compiler: Compiler): any;
+        function doHash(str: string): string;
+        function clearHashes(): void;
+    }
     export {};
 }
 

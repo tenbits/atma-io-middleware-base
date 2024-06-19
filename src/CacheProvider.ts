@@ -179,7 +179,7 @@ class CacheItemSync extends CacheItem {
 }
 
 
-namespace Hashable {
+export namespace Hashable {
 
     export function fromFilename (file: File) {
         let path = file.uri.toLocalFile();
@@ -204,7 +204,7 @@ namespace Hashable {
     }
 
     export function doHash (str: string) {
-        return fnv1aHash(str);
+        return simpleHash(str);
     }
 
     export function clearHashes () {
@@ -248,13 +248,12 @@ namespace Hashable {
         return out;
     }
 
-    // ChatGPT FNV-1a Hash implementation
-    function fnv1aHash(string) {
-        const FNV_PRIME = 0x100000001b3;
-        let hash = 0xcbf29ce484222325;
-        for (let i = 0; i < string.length; i++) {
-            hash ^= string.charCodeAt(i);
-            hash *= FNV_PRIME;
+    function simpleHash (str) {
+        let hash = 0;
+        const prime = 31;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash * prime + char) | 0;  // Bitwise OR to ensure hash is a 32-bit integer
         }
         return Math.abs(hash).toString(16);
     }
