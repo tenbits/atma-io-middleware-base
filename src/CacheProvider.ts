@@ -3,7 +3,6 @@ import { IMiddlewareDefinition } from './IConfig'
 import Compiler from './Compiler';
 
 import * as os from 'os';
-import * as hash from 'xxhashjs';
 import { class_Dfr } from 'atma-utils';
 
 
@@ -191,16 +190,21 @@ namespace Hashable {
     const compilerOptsHashes = new Map;
 
     export function fromOptions (definition: IMiddlewareDefinition, compiler: Compiler) {
-        if (compilerOptsHashes.has(compiler) && compiler.currentConfig == null) {
-            return compilerOptsHashes.get(compiler);
+        if (compiler.currentConfig == null) {
+            // No config for this file, global is used
+            let hash = compilerOptsHashes.get(compiler);
+            if (hash == null) {
+                hash = calcOptsHash(definition, compiler);
+                compilerOptsHashes.set(compiler, hash);
+            }
+            return hash;
         }
         let hash = calcOptsHash(definition, compiler);
-        compilerOptsHashes.set(compiler, hash);
         return hash;
     }
 
     export function doHash (str: string) {
-        return hash.h32(str, 0xA84800A8).toString(16);
+        return fnv1aHash(str);
     }
 
     export function clearHashes () {
@@ -242,5 +246,16 @@ namespace Hashable {
             out += `${key}${stringify(value[key])}`;
         }
         return out;
+    }
+
+    // ChatGPT FNV-1a Hash implementation
+    function fnv1aHash(string) {
+        const FNV_PRIME = 0x100000001b3;
+        let hash = 0xcbf29ce484222325;
+        for (let i = 0; i < string.length; i++) {
+            hash ^= string.charCodeAt(i);
+            hash *= FNV_PRIME;
+        }
+        return Math.abs(hash).toString(16);
     }
 }

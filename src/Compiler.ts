@@ -49,25 +49,30 @@ export default class Compiler {
         this.options = opts;
         this.currentConfig = null;
     }
-    getOption(property) {
-        if (this.currentConfig != null) {
-            let options = obj_getProperty(this.currentConfig, `settings.${this.name}`)
-                || obj_getProperty(this.currentConfig, `${this.name}`)
-                || this.currentConfig;
-
-            let x = obj_getProperty(options, property);
+    getOption(property: string) {
+        let config = this.getCurrentConfig();
+        if (config != null) {
+            let x = obj_getProperty(config, property);
             if (x != null) {
                 return x;
             }
         }
         return obj_getProperty(this.options, property);
     }
+    getCurrentConfig () {
+        if (this.currentConfig == null) {
+            return null;
+        }
+        return obj_getProperty(this.currentConfig, `settings.${this.name}`)
+            ?? obj_getProperty(this.currentConfig, `${this.name}`)
+            ?? this.currentConfig;
+    }
     onMount(io) {
         this.io = io;
         this.middlewareDefinition.onMount?.(io);
     }
 
-    compile(file, config, method: 'read' | 'write'): string | IMiddResult | undefined {
+    compile(file, config: any, method: 'read' | 'write'): string | IMiddResult | undefined {
         this.currentConfig = config;
         if (this.handler?.transformConfig) {
             this.currentConfig = this.handler.transformConfig(file, config, this);

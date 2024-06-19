@@ -31,7 +31,8 @@ declare module 'atma-io-middleware-base/Compiler' {
         constructor(middlewareDefinition: IMiddlewareDefinition, options: IOptions);
         setConfig(config: any): this;
         setOptions(opts: IOptions): void;
-        getOption(property: any): unknown;
+        getOption(property: string): unknown;
+        getCurrentConfig(): any;
         onMount(io: any): void;
         compile(file: any, config: any, method: 'read' | 'write'): string | IMiddResult | undefined;
         compileAsync(file: any, config: any, done: any, method: 'read' | 'write'): void;
