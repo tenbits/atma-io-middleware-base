@@ -7,12 +7,12 @@ import Compiler  from './Compiler'
 import Middleware  from './class/Middleware'
 
 /**
- * @middlewareDefintion {
+ * @middlewareDefinition {
  *     name: string
- *  process (content, path, options, ctx: { file, method })
- *  processAsync (content, path, options, ctx: { file, method }, done)
+ *     process (content, path, options, ctx: { file, method })
+ *     processAsync (content, path, options, ctx: { file, method }, done)
  *     defaultOptions: {}
- *  textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
+ *     textOnly: true "Should serialize content if some previous middleware parsed it to some struct"
  * }
  */
 export default function create (middlewareDefinition: IMiddlewareDefinition, IO?: typeof io) {
