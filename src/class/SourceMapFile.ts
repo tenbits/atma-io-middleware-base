@@ -2,7 +2,7 @@ import { io } from '../dependencies';
 import { class_Dfr } from 'atma-utils';
 import { IDeferred } from 'atma-io/IDeferred';
 
-export default class SourceMapFile extends io.File {
+export class SourceMapFile extends io.File {
     read(opts) {
         if (this.exists('mapOnly'))
             return super.read(opts)

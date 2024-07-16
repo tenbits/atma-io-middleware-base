@@ -1,4 +1,4 @@
-import * as appcfg from 'appcfg';
+import appcfg from 'appcfg';
 import { is_rawObject } from 'atma-utils';
 import { IOptions } from './IConfig'
 

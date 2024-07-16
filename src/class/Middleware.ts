@@ -1,4 +1,4 @@
-import SourceMapFile from './SourceMapFile';
+import { SourceMapFile } from './SourceMapFile';
 import { register } from './VirtualFile';
 import AtmaServer from '../AtmaServer';
 import Compiler from '../Compiler'
